@@ -1,10 +1,10 @@
 {% extends 'base.html' %}
 
 {% block main_content %}
-<div class="container">
+<div class="container-fluid">
     <div class="row mb-4">
         <div class="col">
-            <h2 class="display-6 fw-bold">Olá, Dr(a). {{ user.first_name }}!</h2>
+            <h2 class="display-6 fw-bold">Olá, Dr(a). {{ user.first_name }} {{ user.last_name }}!</h2>
             <p class="lead text-muted">Aqui está o resumo do seu dia na clínica.</p>
         </div>
     </div>
@@ -53,35 +53,35 @@
                                     <th class="text-end pe-4">Ação</th>
                                 </tr>
                             </thead>
-                                <tbody>
-                                    {% for consulta in consultas %}
-                                    <tr>
-                                        <td class="ps-4">
-                                            <div class="fw-bold">{{ consulta.paciente_id.admin.first_name }} {{ consulta.paciente_id.admin.last_name }}</div>
-                                            <small class="text-muted">{{ consulta.paciente_id.genero }}</small>
-                                        </td>
-                                        <td>
-                                            <span class="badge bg-light text-dark border">
-                                                {{ consulta.data_consulta|date:"d/m/Y - H:i" }}
-                                            </span>
-                                        </td>
-                                        <td>{{ consulta.procedimento_id.nome }}</td>
-                                        <td class="text-end pe-4">
-                                            {% if not consulta.status %}
-                                                <span class="badge bg-warning text-dark">Pendente</span>
-                                            {% else %}
-                                                <span class="badge bg-success">Concluída</span>
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                    {% empty %}
-                                    <tr>
-                                        <td colspan="4" class="text-center py-5 text-muted">
-                                            <p class="mb-0">Você não possui consultas agendadas no momento.</p>
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
+                            <tbody>
+                                {% for consulta in consultas %}
+                                <tr>
+                                    <td class="ps-4">
+                                        <div class="fw-bold">{{ consulta.paciente_id.admin.first_name }} {{ consulta.paciente_id.admin.last_name }}</div>
+                                        <small class="text-muted">{{ consulta.paciente_id.genero }}</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-light text-dark border">
+                                            {{ consulta.data_consulta|date:"d/m/Y - H:i" }}
+                                        </span>
+                                    </td>
+                                    <td>{{ consulta.procedimento_id.nome }}</td>
+                                    <td class="text-end pe-4">
+                                        {% if not consulta.status %}
+                                            <span class="badge bg-warning text-dark">Pendente</span>
+                                        {% else %}
+                                            <span class="badge bg-success">Concluída</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center py-5 text-muted">
+                                        <p class="mb-0">Você não possui consultas agendadas no momento.</p>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
                         </table>
                     </div>
                 </div>
