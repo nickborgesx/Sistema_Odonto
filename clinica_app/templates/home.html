@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block main_content %}
+<div class="row align-items-center min-vh-75">
+    <div class="col-md-6">
+        <h1 class="display-4 fw-bold">Bem-vindo ao <span class="text-primary">OdontoGestão</span></h1>
+        <p class="lead">Cuidando do seu sorriso com a tecnologia que você merece. Agende sua consulta ou acesse seu prontuário com facilidade e segurança.</p>
+        <a href="{% url 'login' %}" class="btn btn-primary btn-lg mt-3">Acessar Painel</a>
+    </div>
+    <div class="col-md-6 text-center">
+            <img src="{% static 'Logo.png' %}" class="img-fluid" alt="Dentista">
+    </div>
+</div>
+{% endblock main_content %}

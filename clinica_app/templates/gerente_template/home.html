@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block main_content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col">
+            <h2 class="display-6 fw-bold">Painel Administrativo</h2>
+            <p class="text-muted">Bem-vindo, {{ user.first_name }}. O que deseja gerenciar hoje?</p>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body text-center p-4">
+                    <div class="mb-3 text-primary" style="font-size: 2rem;">🩺</div>
+                    <h5 class="fw-bold">Dentistas</h5>
+                    <p class="text-muted small">Cadastre novos profissionais ou gerencie a equipe atual.</p>
+                    <a href="{% url 'manage_dentista' %}" class="btn btn-outline-primary btn-sm w-100">Gerenciar</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body text-center p-4">
+                    <div class="mb-3 text-success" style="font-size: 2rem;">👥</div>
+                    <h5 class="fw-bold">Pacientes</h5>
+                    <p class="text-muted small">Adicione pacientes e consulte históricos médicos.</p>
+                    <a href="{% url 'manage_paciente' %}" class="btn btn-outline-success btn-sm w-100">Gerenciar</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body text-center p-4">
+                    <div class="mb-3 text-warning" style="font-size: 2rem;">🗓️</div>
+                    <h5 class="fw-bold">Agendamentos</h5>
+                    <p class="text-muted small">Marque novas consultas para os pacientes.</p>
+                    <a href="{% url 'add_consulta' %}" class="btn btn-outline-warning btn-sm text-dark w-100">Novo Agendamento</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body text-center p-4">
+                    <div class="mb-3 text-info" style="font-size: 2rem;">💰</div>
+                    <h5 class="fw-bold">Procedimentos</h5>
+                    <p class="text-muted small">Configure serviços e valores da clínica.</p>
+                    <a href="{% url 'manage_procedimento' %}" class="btn btn-outline-info btn-sm w-100">Tabela de Preços</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h5 class="fw-bold">Agendamentos</h5>
+    <p class="text-muted small">Visualize, edite ou cancele as consultas da clínica.</p>
+        <div class="d-grid gap-2">
+            <a href="{% url 'manage_consulta' %}" class="btn btn-outline-warning btn-sm text-dark">Ver Todas</a>
+            <a href="{% url 'add_consulta' %}" class="btn btn-warning btn-sm text-dark">Novo Agendamento</a>
+        </div>
+{% endblock main_content %}

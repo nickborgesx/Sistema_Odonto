@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block main_content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card card-warning shadow">
+            <div class="card-header">
+                <h3 class="card-title">Editar Dentista: {{ user.first_name }} {{ user.last_name }}</h3>
+            </div>
+            <form action="{% url 'edit_dentista_save' %}" method="post">
+                {% csrf_token %}
+                <div class="card-body">
+                    <input type="hidden" name="dentista_id" value="{{ user.id }}">
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label>Nome</label>
+                            <input type="text" name="first_name" class="form-control" value="{{ user.first_name }}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>Sobrenome</label>
+                            <input type="text" name="last_name" class="form-control" value="{{ user.last_name }}">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label>E-mail (Login)</label>
+                            <input type="email" name="email" class="form-control" value="{{ user.email }}">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label>Especialidade</label>
+                            <input type="text" name="especialidade" class="form-control" value="{{ dentista.especialidade }}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>CRO</label>
+                            <input type="text" name="cro" class="form-control" value="{{ dentista.cro }}">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label>Endereço</label>
+                        <textarea name="address" class="form-control" rows="2">{{ dentista.address }}</textarea>
+                    </div>
+                </div>
+                <div class="card-footer text-end">
+                    <a href="{% url 'manage_dentista' %}" class="btn btn-secondary">Cancelar</a>
+                    <button type="submit" class="btn btn-warning">Salvar Alterações</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock main_content %}

@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+{% block main_content %}
+    <div class="alert alert-info">
+        <h2>Área do Paciente</h2>
+        <p>Olá, {{ user.first_name }}. Veja suas consultas agendadas.</p>
+        <a href="{% url 'logout_user' %}" class="btn btn-danger">Sair</a>
+    </div>
+{% endblock main_content %}

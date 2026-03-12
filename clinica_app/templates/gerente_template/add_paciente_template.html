@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block main_content %}
+<div class="card shadow">
+    <div class="card-header bg-primary text-white"><h3>Cadastrar Paciente</h3></div>
+    <form action="{% url 'add_paciente_save' %}" method="post" class="card-body">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-md-6 mb-3"><label>Nome</label><input type="text" name="first_name" class="form-control" required></div>
+            <div class="col-md-6 mb-3"><label>Sobrenome</label><input type="text" name="last_name" class="form-control" required></div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-3"><label>E-mail</label><input type="email" name="email" class="form-control" required></div>
+            <div class="col-md-6 mb-3"><label>Senha</label><input type="password" name="password" class="form-control" required></div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label>Gênero</label>
+                <select name="genero" class="form-control">
+                    <option value="Masculino">Masculino</option>
+                    <option value="Feminino">Feminino</option>
+                    <option value="Outro">Outro</option>
+                </select>
+            </div>
+            <div class="col-md-6 mb-3"><label>Endereço</label><input type="text" name="address" class="form-control"></div>
+        </div>
+        <div class="mb-3"><label>Histórico Médico / Observações</label><textarea name="historico_medico" class="form-control" rows="3"></textarea></div>
+        <button type="submit" class="btn btn-primary w-100">Salvar Paciente</button>
+    </form>
+</div>
+{% endblock main_content %}

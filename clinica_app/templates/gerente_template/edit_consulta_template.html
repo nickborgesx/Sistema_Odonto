@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% block main_content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-warning py-3">
+                <h4 class="mb-0 fw-bold text-dark">✏️ Editar Agendamento</h4>
+            </div>
+            <form action="{% url 'edit_consulta_save' %}" method="post" class="card-body p-4">
+                {% csrf_token %}
+                <input type="hidden" name="consulta_id" value="{{ consulta.id }}">
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Paciente</label>
+                        <select name="paciente" class="form-control" required>
+                            {% for p in pacientes %}
+                                <option value="{{ p.id }}" {% if p.id == consulta.paciente_id.id %}selected{% endif %}>
+                                    {{ p.admin.first_name }} {{ p.admin.last_name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Dentista Responsável</label>
+                        <select name="dentista" class="form-control" required>
+                            {% for d in dentistas %}
+                                <option value="{{ d.id }}" {% if d.id == consulta.dentista_id.id %}selected{% endif %}>
+                                    Dr(a). {{ d.admin.first_name }} {{ d.admin.last_name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Procedimento</label>
+                        <select name="procedimento" class="form-control" required>
+                            {% for proc in procedimentos %}
+                                <option value="{{ proc.id }}" {% if proc.id == consulta.procedimento_id.id %}selected{% endif %}>
+                                    {{ proc.nome }} (R$ {{ proc.valor }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Data e Hora</label>
+                        <input type="datetime-local" name="data_consulta" class="form-control" 
+                               value="{{ consulta.data_consulta|date:'Y-m-d\TH:i' }}" required>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label fw-bold">Status</label>
+                        <select name="status" class="form-control">
+                            <option value="0" {% if not consulta.status %}selected{% endif %}>Pendente</option>
+                            <option value="1" {% if consulta.status %}selected{% endif %}>Concluída</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-warning w-100 py-2 fw-bold">Salvar Alterações</button>
+                    <a href="{% url 'gerente_home' %}" class="btn btn-light w-100 mt-2 text-muted">Voltar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock main_content %}

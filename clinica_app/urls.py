@@ -1,0 +1,36 @@
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('', views.home, name="home"),
+    path('login/', views.loginUser, name="login"),
+    path('doLogin/', views.doLogin, name="doLogin"),
+    path('logout_user/', views.logout_user, name="logout_user"),
+    
+    # Novas rotas de Dashboard
+    path('gerente_home/', views.gerente_home, name="gerente_home"),
+    path('dentista_home/', views.dentista_home, name="dentista_home"),
+    path('paciente_home/', views.paciente_home, name="paciente_home"),
+    path('add_dentista/', views.add_dentista, name="add_dentista"),
+    path('add_dentista_save', views.add_dentista_save, name="add_dentista_save"),
+    path('manage_dentista/', views.manage_dentista, name="manage_dentista"),
+    path('delete_dentista/<dentista_id>/', views.delete_dentista, name="delete_dentista"),
+    path('edit_dentista/<dentista_id>/', views.edit_dentista, name="edit_dentista"),
+    path('edit_dentista_save', views.edit_dentista_save, name="edit_dentista_save"),
+    path('add_paciente/', views.add_paciente, name="add_paciente"),
+    path('add_paciente_save', views.add_paciente_save, name="add_paciente_save"),
+    path('manage_paciente/', views.manage_paciente, name="manage_paciente"),
+    path('edit_paciente/<paciente_id>/', views.edit_paciente, name="edit_paciente"),
+    path('edit_paciente_save', views.edit_paciente_save, name="edit_paciente_save"),
+    path('delete_paciente/<paciente_id>/', views.delete_paciente, name="delete_paciente"),
+    path('manage_procedimento/', views.manage_procedimento, name="manage_procedimento"),
+    path('add_procedimento_save', views.add_procedimento_save, name="add_procedimento_save"),
+    path('edit_procedimento_save', views.edit_procedimento_save, name="edit_procedimento_save"),
+    path('delete_procedimento/<procedimento_id>/', views.delete_procedimento, name="delete_procedimento"),
+    path('add_consulta/', views.add_consulta, name="add_consulta"),
+    path('add_consulta_save', views.add_consulta_save, name="add_consulta_save"),
+    path('edit_consulta/<consulta_id>/', views.edit_consulta, name="edit_consulta"),
+    path('edit_consulta_save', views.edit_consulta_save, name="edit_consulta_save"),
+    path('manage_consulta/', views.manage_consulta, name="manage_consulta"),
+    path('delete_consulta/<consulta_id>/', views.delete_consulta, name="delete_consulta"),
+]

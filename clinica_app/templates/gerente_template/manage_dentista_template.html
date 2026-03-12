@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block main_content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card shadow">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h3 class="card-title">Dentistas Cadastrados</h3>
+                <a href="{% url 'add_dentista' %}" class="btn btn-success btn-sm">+ Novo Dentista</a>
+            </div>
+            <div class="card-body">
+                <table class="table table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Nome</th>
+                            <th>E-mail</th>
+                            <th>Especialidade</th>
+                            <th>CRO</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for dentista in dentistas %}
+                        <tr>
+                            <td>{{ dentista.admin.id }}</td>
+                            <td>{{ dentista.admin.first_name }} {{ dentista.admin.last_name }}</td>
+                            <td>{{ dentista.admin.email }}</td>
+                            <td>{{ dentista.especialidade }}</td>
+                            <td>{{ dentista.cro }}</td>
+                            <td>
+                                <a href="{% url 'edit_dentista' dentista.admin.id %}" class="btn btn-warning btn-sm">Editar</a>
+                                
+                                <a href="{% url 'delete_dentista' dentista.admin.id %}" class="btn btn-danger btn-sm" onclick="return confirm('Tem certeza que deseja remover este dentista?')">Excluir</a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center">Nenhum dentista cadastrado.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock main_content %}

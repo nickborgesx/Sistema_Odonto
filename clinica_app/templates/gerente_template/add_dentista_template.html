@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block main_content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card card-primary">
+            <div class="card-header">
+                <h3 class="card-title">Cadastrar Novo Dentista</h3>
+            </div>
+            <form action="{% url 'add_dentista_save' %}" method="post">
+                {% csrf_token %}
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label>Nome</label>
+                            <input type="text" name="first_name" class="form-control" placeholder="Ex: João" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>Sobrenome</label>
+                            <input type="text" name="last_name" class="form-control" placeholder="Ex: Silva" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label>E-mail (Login)</label>
+                            <input type="email" name="email" class="form-control" placeholder="dentista@clinica.com" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>Senha Provisória</label>
+                            <input type="password" name="password" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label>Especialidade</label>
+                            <input type="text" name="especialidade" class="form-control" placeholder="Ex: Ortodontia">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label>CRO</label>
+                            <input type="text" name="cro" class="form-control" placeholder="Número do registro">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label>Endereço</label>
+                        <textarea name="address" class="form-control" rows="2"></textarea>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <button type="submit" class="btn btn-primary w-100">Salvar Cadastro</button>
+                </div>
+            </form>
+            
+            {% if messages %}
+                <div class="m-3">
+                    {% for message in messages %}
+                        <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-danger{% endif %}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock main_content %}
