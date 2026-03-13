@@ -1,58 +1,95 @@
 {% extends 'base.html' %}
+{% load static %}
+
 {% block main_content %}
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card shadow-sm border-0">
-            <div class="card-header bg-primary text-white py-3">
-                <h4 class="mb-0 fw-bold"> Novo Agendamento</h4>
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12 text-center">
+            <h2 class="fw-bold mb-0">Agendar Consulta</h2>
+            <p class="text-muted">Preencha os dados abaixo para reservar um horário na agenda.</p>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary py-3 text-white shadow-sm">
+                    <h5 class="mb-0 fw-bold">
+                        <i class="fas fa-calendar-plus me-2"></i> Detalhes do Agendamento
+                    </h5>
+                </div>
+
+                <form action="{% url 'add_consulta_save' %}" method="post" class="card-body p-4">
+                    {% csrf_token %}
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold text-secondary">
+                            <i class="fas fa-user-injured me-1"></i> Paciente
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="fas fa-search"></i></span>
+                            <input list="pacientes_list" name="paciente_nome" class="form-control form-control-lg" placeholder="Digite o nome ou CPF para buscar..." required>
+                        </div>
+                        <datalist id="pacientes_list">
+                            {% for paciente in pacientes %}
+                                <option value="{{ paciente.admin.first_name }} {{ paciente.admin.last_name }} (CPF: {{ paciente.cpf }})">
+                            {% endfor %}
+                        </datalist>
+                        <div class="form-text">O paciente deve estar previamente cadastrado no sistema.</div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <label class="form-label fw-bold text-secondary">
+                                <i class="fas fa-user-md me-1"></i> Dentista Responsável
+                            </label>
+                            <select name="dentista" class="form-select form-control-lg" required>
+                                <option value="" selected disabled>Selecione o profissional...</option>
+                                {% for d in dentistas %}
+                                    <option value="{{ d.id }}">Dr(a). {{ d.admin.first_name }} {{ d.admin.last_name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-md-6 mb-4">
+                            <label class="form-label fw-bold text-secondary">
+                                <i class="fas fa-tooth me-1"></i> Procedimento
+                            </label>
+                            <select name="procedimento" class="form-select form-control-lg" required>
+                                <option value="" selected disabled>Selecione o serviço...</option>
+                                {% for proc in procedimentos %}
+                                    <option value="{{ proc.id }}">{{ proc.nome }} — R$ {{ proc.valor }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12 mb-4">
+                            <label class="form-label fw-bold text-secondary">
+                                <i class="fas fa-clock me-1"></i> Data e Hora da Consulta
+                            </label>
+                            <input type="datetime-local" name="data_consulta" class="form-control form-control-lg" required>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-between align-items-center border-top pt-4 mt-2">
+                        <a href="{% url 'manage_consulta' %}" class="btn btn-light px-4 border">
+                            Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-primary px-5 py-2 fw-bold shadow-sm">
+                            <i class="fas fa-check-circle me-1"></i> Finalizar Agendamento
+                        </button>
+                    </div>
+                </form>
             </div>
-            <form action="{% url 'add_consulta_save' %}" method="post" class="card-body p-4">
-                {% csrf_token %}
-                
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label fw-bold">Paciente</label>
-                        <select name="paciente" class="form-control" required>
-                            <option value="">Selecione o paciente...</option>
-                            {% for p in pacientes %}
-                                <option value="{{ p.id }}">{{ p.admin.first_name }} {{ p.admin.last_name }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label fw-bold">Dentista Responsável</label>
-                        <select name="dentista" class="form-control" required>
-                            <option value="">Selecione o dentista...</option>
-                            {% for d in dentistas %}
-                                <option value="{{ d.id }}">Dr(a). {{ d.admin.first_name }} {{ d.admin.last_name }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
+            
+            <div class="alert alert-info border-0 shadow-sm mt-4 d-flex align-items-center" role="alert">
+                <i class="fas fa-info-circle fs-4 me-3"></i>
+                <div>
+                    Certifique-se de confirmar o horário com o paciente via WhatsApp após o agendamento.
                 </div>
-
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label fw-bold">Procedimento</label>
-                        <select name="procedimento" class="form-control" required>
-                            <option value="">Selecione o serviço...</option>
-                            {% for proc in procedimentos %}
-                                <option value="{{ proc.id }}">{{ proc.nome }} (R$ {{ proc.valor }})</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label fw-bold">Data e Hora</label>
-                        <input type="datetime-local" name="data_consulta" class="form-control" required>
-                    </div>
-                </div>
-
-                <div class="mt-4">
-                    <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">Confirmar Agendamento</button>
-                    <a href="{% url 'gerente_home' %}" class="btn btn-light w-100 mt-2 text-muted">Cancelar</a>
-                </div>
-            </form>
+            </div>
         </div>
     </div>
 </div>

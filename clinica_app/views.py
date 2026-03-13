@@ -1,11 +1,12 @@
-
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from .models import CustomUser, Dentista, Paciente, Procedimento, Consulta
 from django.utils import timezone
 from django.shortcuts import render, redirect
-from django.http import HttpResponse, HttpResponseRedirect
-
+from django.db.models import Q
+from datetime import date
+from django.contrib.auth.decorators import login_required
+import uuid
 
 def home(request):
     return render(request, 'home.html')
@@ -15,19 +16,15 @@ def loginUser(request):
 
 def doLogin(request):
     if request.method != "POST":
-        # Em vez de HttpResponse, vamos apenas mandar de volta para o login
         return redirect('login')
     
     email = request.POST.get("email")
     password = request.POST.get("password")
-    
     user = authenticate(request, username=email, password=password)
     
     if user is not None:
         login(request, user)
-        # Redirecionamento por tipo de usuário
-        user_type = str(user.user_type) # Convertendo para string para garantir a comparação
-        
+        user_type = str(user.user_type)
         if user_type == "1":
             return redirect('gerente_home')
         elif user_type == "2":
@@ -45,33 +42,53 @@ def logout_user(request):
     return redirect('home')
 
 # Placeholders para as futuras Dashboards (vamos criá-las depois)
+@login_required
 def gerente_home(request):
+    if str(request.user.user_type) != "1":
+        messages.error(request, "Acesso restrito a gerentes.")
+        return redirect('home')
     return render(request, 'gerente_template/home.html')
 
+@login_required
 def dentista_home(request):
-    # 1. Pegamos o objeto Dentista que está vinculado ao Usuário logado
-    try:
-        dentista_obj = Dentista.objects.get(admin=request.user.id)
+    if str(request.user.user_type) != "2":
+        messages.error(request, "Acesso restrito a dentistas.")
+        return redirect('home')
         
-        # 2. Buscamos as consultas USANDO O OBJETO DENTISTA (e não o ID do user)
+    try:
+        dentista_obj = Dentista.objects.get(admin=request.user) # Use o objeto direto
+        hoje = date.today()
         consultas = Consulta.objects.filter(dentista_id=dentista_obj).order_by('data_consulta')
         
+        # Filtro de busca
+        query = request.GET.get('q')
+        if query:
+            consultas = consultas.filter(
+                Q(paciente_id__admin__first_name__icontains=query) | 
+                Q(paciente_id__admin__last_name__icontains=query)
+            )
+
+        consultas_hoje = Consulta.objects.filter(dentista_id=dentista_obj, data_consulta__date=hoje)
+        
         context = {
+            "dentista": dentista_obj,
             "consultas": consultas,
-            "total_pacientes": consultas.values('paciente_id').distinct().count(),
-            "total_consultas": consultas.count(),
-            "consultas_pendentes": consultas.filter(status=False).count(),
+            "total_pacientes": consultas_hoje.values('paciente_id').distinct().count(),
+            "total_consultas": consultas_hoje.count(),
+            "consultas_pendentes": consultas_hoje.filter(status=False).count(),
+            "hoje": hoje,
         }
+        return render(request, 'dentista_template/home.html', context)
+        
     except Dentista.DoesNotExist:
-        # Caso o usuário logado não seja um dentista cadastrado
+        messages.error(request, "Perfil de dentista não encontrado.")
         return redirect('logout_user')
 
-    return render(request, 'dentista_template/home.html', context)
-
+@login_required
 def paciente_home(request):
+    if str(request.user.user_type) != "3":
+        return redirect('home')
     return render(request, 'paciente_template/home.html')
-
-from .models import Dentista, CustomUser # Certifique-se de que estão importados
 
 def add_dentista(request):
     return render(request, "gerente_template/add_dentista_template.html")
@@ -80,36 +97,42 @@ def add_dentista_save(request):
     if request.method != "POST":
         return redirect('add_dentista')
     
-    first_name = request.POST.get('first_name')
-    last_name = request.POST.get('last_name')
+    nome_completo = request.POST.get('nome_completo')
     email = request.POST.get('email')
     password = request.POST.get('password')
-    especialidade = request.POST.get('especialidade')
     cro = request.POST.get('cro')
-    address = request.POST.get('address')
+    cpf = request.POST.get('cpf')
+
+    # Validações de duplicidade
+    if CustomUser.objects.filter(username=email).exists():
+        messages.error(request, "E-mail já cadastrado!")
+        return redirect('add_dentista')
+    
+    if Dentista.objects.filter(cro=cro).exists():
+        messages.error(request, "Este CRO já está registrado!")
+        return redirect('add_dentista')
 
     try:
-        # 1. Cria o usuário base
         user = CustomUser.objects.create_user(
-            username=email, 
-            password=password, 
-            email=email, 
-            first_name=first_name, 
-            last_name=last_name, 
-            user_type=2 # 2 é o tipo Dentista
+            username=email, password=password, email=email,
+            first_name=nome_completo, last_name="", user_type='2'
         )
-        # 2. O Signal que criamos no models.py já criará o objeto Dentista,
-        # então vamos apenas atualizar os campos extras:
+        # O signal já criou o dentista, agora apenas preenchemos
         dentista = user.dentista
-        dentista.especialidade = especialidade
+        dentista.address = request.POST.get('address')
+        dentista.especialidade = request.POST.get('especialidade')
         dentista.cro = cro
-        dentista.address = address
+        dentista.cpf = cpf
+        dentista.telefone = request.POST.get('telefone')
+        
+        data_nasc = request.POST.get('data_nascimento')
+        if data_nasc: dentista.data_nascimento = data_nasc
+        
         dentista.save()
-
-        messages.success(request, "Dentista cadastrado com sucesso!")
-        return redirect('add_dentista')
+        messages.success(request, f"Dentista {nome_completo} cadastrado!")
+        return redirect('manage_dentista')
     except Exception as e:
-        messages.error(request, f"Erro ao cadastrar dentista: {e}")
+        messages.error(request, f"Erro: {e}")
         return redirect('add_dentista')
 
 def manage_dentista(request):
@@ -117,13 +140,14 @@ def manage_dentista(request):
     return render(request, "gerente_template/manage_dentista_template.html", {"dentistas": dentistas})
 
 def delete_dentista(request, dentista_id):
-    dentista = Dentista.objects.get(admin=dentista_id)
-    user = CustomUser.objects.get(id=dentista_id)
     try:
-        user.delete() # Deletando o CustomUser, o Django deleta o Dentista automaticamente (Cascade)
-        messages.success(request, "Dentista removido com sucesso!")
-    except:
-        messages.error(request, "Erro ao remover dentista.")
+        # Buscamos o dentista pelo ID do CustomUser (admin_id)
+        user = CustomUser.objects.get(id=dentista_id)
+        nome = user.first_name
+        user.delete() # Isso deleta o Dentista automaticamente via CASCADE
+        messages.success(request, f"Dentista {nome} removido com sucesso.")
+    except Exception as e:
+        messages.error(request, f"Erro ao excluir: {e}")
     return redirect('manage_dentista')
 
 def edit_dentista(request, dentista_id):
@@ -137,36 +161,35 @@ def edit_dentista_save(request):
         return redirect('manage_dentista')
     
     dentista_id = request.POST.get('dentista_id')
-    first_name = request.POST.get('first_name')
-    last_name = request.POST.get('last_name')
-    email = request.POST.get('email')
-    especialidade = request.POST.get('especialidade')
-    cro = request.POST.get('cro')
-    address = request.POST.get('address')
-
+    
     try:
-        # 1. Atualiza o usuário base
+        # Usamos get() para buscar o usuário pelo ID
         user = CustomUser.objects.get(id=dentista_id)
-        user.first_name = first_name
-        user.last_name = last_name
-        user.email = email
-        user.username = email
+        
+        # Salvando o nome completo no first_name
+        user.first_name = request.POST.get('nome_completo')
+        user.last_name = "" 
+        user.email = request.POST.get('email') # Não esqueça do email se ele mudar!
         user.save()
 
-        # 2. Atualiza os dados específicos do dentista
+        # Acessando o objeto dentista relacionado
         dentista = user.dentista
-        dentista.especialidade = especialidade
-        dentista.cro = cro
-        dentista.address = address
+        dentista.especialidade = request.POST.get('especialidade')
+        dentista.cro = request.POST.get('cro')
+        dentista.address = request.POST.get('address')
+        dentista.cpf = request.POST.get('cpf')
+        dentista.telefone = request.POST.get('telefone')
+        dentista.data_nascimento = request.POST.get('data_nascimento')
+        
         dentista.save()
+        messages.success(request, f"Dados do(a) Dr(a). {user.first_name} atualizados com sucesso!")
 
-        messages.success(request, "Dados do dentista atualizados com sucesso!")
-        return redirect('manage_dentista')
+    except CustomUser.DoesNotExist:
+        messages.error(request, "Usuário não encontrado.")
     except Exception as e:
         messages.error(request, f"Erro ao atualizar: {e}")
-        return redirect('manage_dentista')
-
-from .models import Paciente # Certifique-se de importar o modelo
+    
+    return redirect('manage_dentista')
 
 # Listar Pacientes
 def manage_paciente(request):
@@ -177,32 +200,49 @@ def manage_paciente(request):
 def add_paciente(request):
     return render(request, "gerente_template/add_paciente_template.html")
 
-# Salvar Cadastro
 def add_paciente_save(request):
     if request.method != "POST":
         return redirect('add_paciente')
+
+    data = request.POST
+    nome_completo = data.get('nome_completo')
+    email = data.get('email')
+    cpf = data.get('cpf')
+
+    if CustomUser.objects.filter(username=email).exists():
+        messages.error(request, "Este e-mail já está sendo usado.")
+        return render(request, 'gerente_template/add_paciente_template.html', {'dados': data})
     
-    first_name = request.POST.get('first_name')
-    last_name = request.POST.get('last_name')
-    email = request.POST.get('email')
-    password = request.POST.get('password')
-    address = request.POST.get('address')
-    genero = request.POST.get('genero')
-    historico = request.POST.get('historico_medico')
+    # CORREÇÃO AQUI: Adicionado 'gerente_template/'
+    if cpf and Paciente.objects.filter(cpf=cpf).exists():
+        messages.error(request, "Este CPF já está cadastrado.")
+        return render(request, 'gerente_template/add_paciente_template.html', {'dados': data})
 
     try:
-        user = CustomUser.objects.create_user(username=email, password=password, email=email, first_name=first_name, last_name=last_name, user_type=3)
+        user = CustomUser.objects.create_user(
+            username=email, password=str(uuid.uuid4()), email=email,
+            first_name=nome_completo, user_type='3'
+        )
+        
         paciente = user.paciente
-        paciente.address = address
-        paciente.genero = genero
-        paciente.historico_medico = historico
+        paciente.genero = data.get('genero')
+        paciente.cpf = cpf
+        paciente.telefone = data.get('telefone')
+        paciente.address = data.get('address')
+        paciente.historico_medico = data.get('historico_medico')
+        
+        data_nasc = data.get('data_nascimento')
+        if data_nasc: paciente.data_nascimento = data_nasc
+        
         paciente.save()
-        messages.success(request, "Paciente cadastrado com sucesso!")
+        messages.success(request, f"Paciente {nome_completo} cadastrado!")
         return redirect('manage_paciente')
-    except Exception as e:
-        messages.error(request, f"Erro ao cadastrar: {e}")
-        return redirect('add_paciente')
 
+    except Exception as e:
+        messages.error(request, f"Erro crítico: {e}")
+        # CORREÇÃO AQUI: Adicionado 'gerente_template/'
+        return render(request, 'gerente_template/add_paciente_template.html', {'dados': data})
+    
 # Editar Paciente
 def edit_paciente(request, paciente_id):
     user = CustomUser.objects.get(id=paciente_id)
@@ -215,26 +255,50 @@ def edit_paciente_save(request):
         return redirect('manage_paciente')
     
     paciente_id = request.POST.get('paciente_id')
-    user = CustomUser.objects.get(id=paciente_id)
-    user.first_name = request.POST.get('first_name')
-    user.last_name = request.POST.get('last_name')
-    user.email = request.POST.get('email')
-    user.save()
+    
+    try:
+        # Busca o usuário pelo ID vindo do input hidden
+        user = CustomUser.objects.get(id=paciente_id)
+        
+        # Salvando o Nome Completo no campo first_name e limpando o last_name
+        user.first_name = request.POST.get('nome_completo')
+        user.last_name = "" 
+        user.email = request.POST.get('email')
+        user.save()
 
-    paciente = user.paciente
-    paciente.address = request.POST.get('address')
-    paciente.genero = request.POST.get('genero')
-    paciente.historico_medico = request.POST.get('historico_medico')
-    paciente.save()
+        # Acessando o model Paciente (extensão do User)
+        paciente = user.paciente
+        paciente.address = request.POST.get('address')
+        paciente.genero = request.POST.get('genero')
+        paciente.historico_medico = request.POST.get('historico_medico')
+        
+        # --- NOVOS CAMPOS ATUALIZADOS ---
+        paciente.cpf = request.POST.get('cpf')
+        paciente.telefone = request.POST.get('telefone')
+        paciente.data_nascimento = request.POST.get('data_nascimento')
+        # -------------------------------
+        
+        paciente.save()
 
-    messages.success(request, "Dados do paciente atualizados!")
+        messages.success(request, f"Cadastro de {user.first_name} atualizado com sucesso!")
+        
+    except CustomUser.DoesNotExist:
+        messages.error(request, "Paciente não encontrado no sistema.")
+    except Exception as e:
+        messages.error(request, f"Erro ao atualizar paciente: {e}")
+        
     return redirect('manage_paciente')
 
 # Deletar Paciente
 def delete_paciente(request, paciente_id):
-    user = CustomUser.objects.get(id=paciente_id)
-    user.delete()
-    messages.success(request, "Paciente removido.")
+    try:
+        # Buscamos o paciente pelo ID do CustomUser (admin_id)
+        user = CustomUser.objects.get(id=paciente_id)
+        nome = user.first_name
+        user.delete() # Isso deleta o Paciente automaticamente via CASCADE
+        messages.success(request, f"Paciente {nome} removido com sucesso.")
+    except Exception as e:
+        messages.error(request, f"Erro ao excluir: {e}")
     return redirect('manage_paciente')
 
 def dentista_home(request):
@@ -397,3 +461,26 @@ def delete_consulta(request, consulta_id):
     except:
         messages.error(request, "Erro ao remover agendamento.")
     return redirect('manage_consulta')
+
+def dentista_manage_paciente(request):
+    query = request.GET.get('q')
+    pacientes = Paciente.objects.all()
+
+    if query:
+        pacientes = pacientes.filter(
+            Q(admin__first_name__icontains=query) | 
+            Q(admin__last_name__icontains=query)
+        )
+
+    return render(request, "dentista_template/manage_paciente.html", {"pacientes": pacientes, "query": query})
+
+def dentista_view_paciente(request, paciente_id):
+    paciente = Paciente.objects.get(id=paciente_id)
+    # Pegamos todas as consultas desse paciente com este dentista
+    historico_consultas = Consulta.objects.filter(paciente_id=paciente).order_by('-data_consulta')
+    
+    context = {
+        "paciente": paciente,
+        "consultas": historico_consultas
+    }
+    return render(request, "dentista_template/view_paciente.html", context)

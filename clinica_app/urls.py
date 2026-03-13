@@ -33,4 +33,6 @@ urlpatterns = [
     path('edit_consulta_save', views.edit_consulta_save, name="edit_consulta_save"),
     path('manage_consulta/', views.manage_consulta, name="manage_consulta"),
     path('delete_consulta/<consulta_id>/', views.delete_consulta, name="delete_consulta"),
+    path('dentista_manage_paciente/', views.dentista_manage_paciente, name="dentista_manage_paciente"),
+    path('view_paciente/<paciente_id>/', views.dentista_view_paciente, name="view_paciente")
 ]

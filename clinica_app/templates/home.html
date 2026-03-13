@@ -2,14 +2,36 @@
 {% load static %}
 
 {% block main_content %}
-<div class="row align-items-center min-vh-75">
-    <div class="col-md-6">
-        <h1 class="display-4 fw-bold">Bem-vindo ao <span class="text-primary">OdontoGestão</span></h1>
-        <p class="lead">Cuidando do seu sorriso com a tecnologia que você merece. Agende sua consulta ou acesse seu prontuário com facilidade e segurança.</p>
-        <a href="{% url 'login' %}" class="btn btn-primary btn-lg mt-3">Acessar Painel</a>
+<div class="container d-flex flex-column align-items-center justify-content-center" style="min-height: 75vh;">
+    
+    <div class="text-center mb-4">
+        <img src="{% static 'Logo.png' %}" class="img-fluid" alt="OdontoGestão" style="max-height: 180px; opacity: 0.9;">
     </div>
-    <div class="col-md-6 text-center">
-            <img src="{% static 'Logo.png' %}" class="img-fluid" alt="Dentista">
+
+    <div class="text-center mb-5">
+        <h1 class="fw-light text-secondary">Sistema <span class="fw-bold text-dark">OdontoGestão</span></h1>
+        <p class="lead text-muted mx-auto" style="max-width: 500px;">
+            Plataforma interna para gestão de pacientes e agendamentos clínicos.
+        </p>
     </div>
+
+    <div class="text-center">
+        {% if not user.is_authenticated %}
+            <a href="{% url 'login' %}" class="btn btn-primary btn-lg px-5 py-3 rounded-pill shadow-sm" style="font-weight: 500; letter-spacing: 0.5px;">
+                Acessar Sistema
+            </a>
+        {% else %}
+            <div class="alert alert-light border py-3 px-5 rounded-pill">
+                <span class="text-muted">Você está conectado como <strong>{{ user.first_name }}</strong></span>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="mt-5 pt-4 opacity-50">
+        <small class="text-uppercase text-muted" style="font-size: 0.7rem; letter-spacing: 2px;">
+            Ambiente Local Restrito
+        </small>
+    </div>
+
 </div>
 {% endblock main_content %}

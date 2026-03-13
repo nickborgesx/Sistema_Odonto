@@ -1,11 +1,21 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block main_content %}
 <div class="container-fluid">
-    <div class="row mb-4">
-        <div class="col">
-            <h2 class="display-6 fw-bold">Olá, Dr(a). {{ user.first_name }} {{ user.last_name }}!</h2>
-            <p class="lead text-muted">Aqui está o resumo do seu dia na clínica.</p>
+    <div class="row mb-4 align-items-center">
+        <div class="col-md-6">
+            <h2 class="fw-bold mb-0">Painel de Atendimento</h2>
+            <p class="text-muted">Resumo das atividades de hoje: <strong>{{ hoje|date:"d/m/Y" }}</strong></p>
+        </div>
+        
+        <div class="col-md-6">
+            <form method="GET" action="{% url 'dentista_manage_paciente' %}" class="d-flex shadow-sm rounded bg-white overflow-hidden" style="border: 1px solid #e9ecef;">
+                <input type="text" name="q" class="form-control border-0" placeholder="Buscar paciente pelo nome..." value="{{ request.GET.q }}" style="box-shadow: none; padding: 12px 20px;">
+                <button class="btn btn-white border-0 bg-white px-3" type="submit">
+                    <img src="{% static 'procurar.png' %}" alt="Buscar" style="width: 20px; height: 20px;">
+                </button>
+            </form>
         </div>
     </div>
 
@@ -13,7 +23,7 @@
         <div class="col-md-4">
             <div class="card h-100 border-0 shadow-sm" style="border-left: 5px solid #007bff !important;">
                 <div class="card-body p-4">
-                    <h6 class="text-uppercase text-muted fw-bold small">Pacientes Atendidos</h6>
+                    <h6 class="text-uppercase text-muted fw-bold small">Pacientes de Hoje</h6>
                     <h2 class="fw-bold mb-0">{{ total_pacientes }}</h2>
                 </div>
             </div>
@@ -21,7 +31,7 @@
         <div class="col-md-4">
             <div class="card h-100 border-0 shadow-sm" style="border-left: 5px solid #28a745 !important;">
                 <div class="card-body p-4">
-                    <h6 class="text-uppercase text-muted fw-bold small">Total de Consultas</h6>
+                    <h6 class="text-uppercase text-muted fw-bold small">Consultas do Dia</h6>
                     <h2 class="fw-bold mb-0">{{ total_consultas }}</h2>
                 </div>
             </div>
@@ -29,7 +39,7 @@
         <div class="col-md-4">
             <div class="card h-100 border-0 shadow-sm" style="border-left: 5px solid #ffc107 !important;">
                 <div class="card-body p-4">
-                    <h6 class="text-uppercase text-muted fw-bold small">Consultas Pendentes</h6>
+                    <h6 class="text-uppercase text-muted fw-bold small">Pendentes Hoje</h6>
                     <h2 class="fw-bold mb-0">{{ consultas_pendentes }}</h2>
                 </div>
             </div>
@@ -40,7 +50,7 @@
         <div class="col-12">
             <div class="card shadow-sm">
                 <div class="card-header bg-white py-3">
-                    <h5 class="mb-0 fw-bold">Sua Agenda Próxima</h5>
+                    <h5 class="mb-0 fw-bold">Agenda Completa</h5>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
@@ -77,7 +87,7 @@
                                 {% empty %}
                                 <tr>
                                     <td colspan="4" class="text-center py-5 text-muted">
-                                        <p class="mb-0">Você não possui consultas agendadas no momento.</p>
+                                        <p class="mb-0">Nenhum agendamento encontrado.</p>
                                     </td>
                                 </tr>
                                 {% endfor %}

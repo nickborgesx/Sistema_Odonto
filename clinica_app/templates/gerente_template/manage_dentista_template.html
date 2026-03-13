@@ -1,41 +1,67 @@
 {% extends 'base.html' %}
+{% load static %}
+
 {% block main_content %}
-<div class="row">
-    <div class="col-md-12">
-        <div class="card shadow">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h3 class="card-title">Dentistas Cadastrados</h3>
-                <a href="{% url 'add_dentista' %}" class="btn btn-success btn-sm">+ Novo Dentista</a>
-            </div>
-            <div class="card-body">
-                <table class="table table-hover">
-                    <thead class="table-dark">
+<div class="container-fluid">
+    <div class="row mb-4 align-items-center">
+        <div class="col-md-6">
+            <h2 class="fw-bold mb-0">Corpo Clínico</h2>
+            <p class="text-muted">Gerencie os dentistas e suas informações profissionais.</p>
+        </div>
+        <div class="col-md-6 text-md-end">
+            <a href="{% url 'add_dentista' %}" class="btn btn-success shadow-sm px-4">
+                <img src="{% static 'adicionar.png' %}" style="width: 18px; margin-right: 5px; filter: brightness(0) invert(1);"> Novo Dentista
+            </a>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light text-secondary">
                         <tr>
-                            <th>ID</th>
-                            <th>Nome</th>
-                            <th>E-mail</th>
+                            <th class="ps-4">Dentista / CRO</th>
                             <th>Especialidade</th>
-                            <th>CRO</th>
-                            <th>Ações</th>
+                            <th>Contato / CPF</th>
+                            <th class="text-end pe-4">Ações</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for dentista in dentistas %}
                         <tr>
-                            <td>{{ dentista.admin.id }}</td>
-                            <td>{{ dentista.admin.first_name }} {{ dentista.admin.last_name }}</td>
-                            <td>{{ dentista.admin.email }}</td>
-                            <td>{{ dentista.especialidade }}</td>
-                            <td>{{ dentista.cro }}</td>
+                            <td class="ps-4">
+                                <div class="d-flex align-items-center">
+                                    <div class="icon-box bg-primary-subtle rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                        <img src="{% static 'dentista.png' %}" style="width: 20px;">
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold text-primary">{{ dentista.admin.first_name }} {{ dentista.admin.last_name }}</div>
+                                        <small class="text-muted">CRO: {{ dentista.cro }}</small>
+                                    </div>
+                                </div>
+                            </td>
                             <td>
-                                <a href="{% url 'edit_dentista' dentista.admin.id %}" class="btn btn-warning btn-sm">Editar</a>
-                                
-                                <a href="{% url 'delete_dentista' dentista.admin.id %}" class="btn btn-danger btn-sm" onclick="return confirm('Tem certeza que deseja remover este dentista?')">Excluir</a>
+                                <span class="badge bg-info-subtle text-info border border-info-subtle px-3 py-2">
+                                    {{ dentista.especialidade }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="small fw-bold">{{ dentista.telefone|default:"Sem telefone" }}</div>
+                                <div class="text-muted small">CPF: {{ dentista.cpf|default:"---" }}</div>
+                            </td>
+                            <td class="text-end pe-4">
+                                <a href="{% url 'edit_dentista' dentista.admin.id %}" class="btn btn-sm btn-outline-warning px-3 me-2">
+                                    Editar
+                                </a>
+                                <a href="{% url 'delete_dentista' dentista.admin.id %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Tem certeza que deseja remover este dentista?')">
+                                    Excluir
+                                </a>
                             </td>
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="6" class="text-center">Nenhum dentista cadastrado.</td>
+                            <td colspan="4" class="text-center py-5 text-muted">Nenhum dentista cadastrado.</td>
                         </tr>
                         {% endfor %}
                     </tbody>

@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block main_content %}
+<div class="container-fluid">
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body p-4">
+            <h3 class="fw-bold text-primary">{{ paciente.admin.first_name }} {{ paciente.admin.last_name }}</h3>
+            <div class="row mt-3">
+                <div class="col-md-3"><strong>CPF:</strong> {{ paciente.cpf }}</div>
+                <div class="col-md-3"><strong>Telefone:</strong> {{ paciente.telefone }}</div>
+                <div class="col-md-3"><strong>Nascimento:</strong> {{ paciente.data_nascimento|date:"d/m/Y" }}</div>
+                <div class="col-md-3"><strong>Gênero:</strong> {{ paciente.genero }}</div>
+            </div>
+            <hr>
+            <h6 class="fw-bold">Histórico Médico Base:</h6>
+            <p>{{ paciente.historico_medico }}</p>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-white"><h5 class="mb-0 fw-bold">Histórico de Consultas</h5></div>
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th>Data</th>
+                        <th>Procedimento</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in consultas %}
+                    <tr>
+                        <td>{{ c.data_consulta|date:"d/m/Y H:i" }}</td>
+                        <td>{{ c.procedimento_id.nome }}</td>
+                        <td>{% if c.status %}Concluída{% else %}Pendente{% endif %}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

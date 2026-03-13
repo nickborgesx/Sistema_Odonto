@@ -1,64 +1,101 @@
 {% extends 'base.html' %}
+{% load static %}
+
 {% block main_content %}
-<div class="container">
-    <div class="row mb-4">
-        <div class="col">
-            <h2 class="display-6 fw-bold">Painel Administrativo</h2>
-            <p class="text-muted">Bem-vindo, {{ user.first_name }}. O que deseja gerenciar hoje?</p>
+<style>
+    /* Efeito de elevação nos cards ao passar o mouse */
+    .hover-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border-radius: 15px !important;
+        overflow: hidden; /* Garante que o fundo suave não saia dos cantos arredondados */
+    }
+    .hover-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.12) !important;
+    }
+    .icon-box {
+        width: 70px; /* Aumentado um pouco para acomodar melhor as imagens */
+        height: 70px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 15px; /* Bordas mais suaves para combinar com o card */
+        margin: 0 auto 20px; /* Aumentado o espaçamento inferior */
+        padding: 10px; /* Adicionado padding para a imagem não tocar as bordas */
+    }
+    /* Garante que as imagens dos ícones caibam e fiquem centralizadas */
+    .icon-box img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+</style>
+
+<div class="container-fluid py-4 px-3">
+    <div class="row mb-5">
+        <div class="col-12 text-center text-md-start p-0">
+            <h2 class="fw-bold text-dark mb-1">Painel Administrativo</h2>
+            <p class="text-muted">Bem-vindo, <span class="text-primary fw-bold">{{ user.first_name }}</span>. O que deseja gerenciar hoje?</p>
         </div>
     </div>
 
     <div class="row g-4">
-        <div class="col-md-4">
-            <div class="card h-100 shadow-sm border-0">
-                <div class="card-body text-center p-4">
-                    <div class="mb-3 text-primary" style="font-size: 2rem;">🩺</div>
-                    <h5 class="fw-bold">Dentistas</h5>
-                    <p class="text-muted small">Cadastre novos profissionais ou gerencie a equipe atual.</p>
-                    <a href="{% url 'manage_dentista' %}" class="btn btn-outline-primary btn-sm w-100">Gerenciar</a>
+        
+        <div class="col-md-6 col-lg-3">
+            <div class="card h-100 shadow-sm border-0 hover-card">
+                <div class="card-body text-center p-4 d-flex flex-column">
+                    <div class="icon-box bg-primary-subtle">
+                        <img src="{% static 'dentista.png' %}" alt="Ícone Dentistas">
+                    </div>
+                    <h5 class="fw-bold mb-2 text-dark">Dentistas</h5>
+                    <p class="text-muted small mb-4 flex-grow-1">Gerencie a equipe de profissionais e suas especialidades.</p>
+                    <a href="{% url 'manage_dentista' %}" class="btn btn-primary w-100 rounded-pill fw-bold">Gerenciar Equipe</a>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-4">
-            <div class="card h-100 shadow-sm border-0">
-                <div class="card-body text-center p-4">
-                    <div class="mb-3 text-success" style="font-size: 2rem;">👥</div>
-                    <h5 class="fw-bold">Pacientes</h5>
-                    <p class="text-muted small">Adicione pacientes e consulte históricos médicos.</p>
-                    <a href="{% url 'manage_paciente' %}" class="btn btn-outline-success btn-sm w-100">Gerenciar</a>
+        <div class="col-md-6 col-lg-3">
+            <div class="card h-100 shadow-sm border-0 hover-card">
+                <div class="card-body text-center p-4 d-flex flex-column">
+                    <div class="icon-box bg-success-subtle">
+                        <img src="{% static 'paciente.png' %}" alt="Ícone Pacientes">
+                    </div>
+                    <h5 class="fw-bold mb-2 text-dark">Pacientes</h5>
+                    <p class="text-muted small mb-4 flex-grow-1">Controle cadastros, históricos médicos e prontuários.</p>
+                    <a href="{% url 'manage_paciente' %}" class="btn btn-success w-100 rounded-pill fw-bold">Ver Pacientes</a>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-4">
-            <div class="card h-100 shadow-sm border-0">
-                <div class="card-body text-center p-4">
-                    <div class="mb-3 text-warning" style="font-size: 2rem;">🗓️</div>
-                    <h5 class="fw-bold">Agendamentos</h5>
-                    <p class="text-muted small">Marque novas consultas para os pacientes.</p>
-                    <a href="{% url 'add_consulta' %}" class="btn btn-outline-warning btn-sm text-dark w-100">Novo Agendamento</a>
+        <div class="col-md-6 col-lg-3">
+            <div class="card h-100 shadow-sm border-0 hover-card">
+                <div class="card-body text-center p-4 d-flex flex-column">
+                    <div class="icon-box bg-warning-subtle">
+                        <img src="{% static 'calendario.png' %}" alt="Ícone Consultas">
+                    </div>
+                    <h5 class="fw-bold mb-2 text-dark">Consultas</h5>
+                    <p class="text-muted small mb-3 flex-grow-1">Agenda completa da clínica e novos atendimentos.</p>
+                    <div class="d-grid gap-2 mt-auto">
+                        <a href="{% url 'add_consulta' %}" class="btn btn-warning btn-sm fw-bold rounded-pill text-dark">Novo Agendamento</a>
+                        <a href="{% url 'manage_consulta' %}" class="btn btn-outline-warning btn-sm rounded-pill text-dark fw-bold">Ver Histórico</a>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-4">
-            <div class="card h-100 shadow-sm border-0">
-                <div class="card-body text-center p-4">
-                    <div class="mb-3 text-info" style="font-size: 2rem;">💰</div>
-                    <h5 class="fw-bold">Procedimentos</h5>
-                    <p class="text-muted small">Configure serviços e valores da clínica.</p>
-                    <a href="{% url 'manage_procedimento' %}" class="btn btn-outline-info btn-sm w-100">Tabela de Preços</a>
+        <div class="col-md-6 col-lg-3">
+            <div class="card h-100 shadow-sm border-0 hover-card">
+                <div class="card-body text-center p-4 d-flex flex-column">
+                    <div class="icon-box bg-info-subtle">
+                        <img src="{% static 'procedimento.png' %}" alt="Ícone Procedimentos">
+                    </div>
+                    <h5 class="fw-bold mb-2 text-dark">Procedimentos</h5>
+                    <p class="text-muted small mb-4 flex-grow-1">Configure os serviços oferecidos e seus valores.</p>
+                    <a href="{% url 'manage_procedimento' %}" class="btn btn-info w-100 rounded-pill text-white fw-bold">Tabela de Preços</a>
                 </div>
             </div>
         </div>
+
     </div>
 </div>
-
-<h5 class="fw-bold">Agendamentos</h5>
-    <p class="text-muted small">Visualize, edite ou cancele as consultas da clínica.</p>
-        <div class="d-grid gap-2">
-            <a href="{% url 'manage_consulta' %}" class="btn btn-outline-warning btn-sm text-dark">Ver Todas</a>
-            <a href="{% url 'add_consulta' %}" class="btn btn-warning btn-sm text-dark">Novo Agendamento</a>
-        </div>
 {% endblock main_content %}

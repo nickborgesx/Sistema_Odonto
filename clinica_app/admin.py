@@ -4,9 +4,23 @@ from .models import CustomUser, Gerente, Dentista, Paciente, Procedimento, Consu
 
 # Configuração para o Usuário Personalizado aparecer com os campos certos
 class UserModel(UserAdmin):
+    # Campos que aparecem na lista
     list_display = ('email', 'first_name', 'last_name', 'user_type', 'is_staff')
+    
+    # Ordenação (opcional, ajuda a organizar)
+    ordering = ('email',)
+
+    # Campos que aparecem na tela de edição
     fieldsets = UserAdmin.fieldsets + (
-        (None, {'fields': ('user_type',)}),
+        ('Tipo de Usuário', {'fields': ('user_type',)}),
+    )
+
+    # ESSENCIAL: Campos que aparecem na tela de CRIAÇÃO (Botão "Adicionar Usuário")
+    add_fieldsets = UserAdmin.add_fieldsets + (
+        (None, {
+            'classes': ('wide',),
+            'fields': ('email', 'first_name', 'last_name', 'user_type', 'is_staff', 'is_active'),
+        }),
     )
 
 admin.site.register(CustomUser, UserModel)
