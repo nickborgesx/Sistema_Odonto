@@ -2,86 +2,90 @@
 {% load static %}
 
 {% block main_content %}
-<div class="container-fluid">
-    <div class="card shadow-sm border-0">
-        <div class="card-header bg-warning py-3">
-            <h3 class="card-title text-dark mb-0 fw-bold">
-                <i class="fas fa-user-md me-2"></i>Editar Dentista: {{ user.first_name }} {{ user.last_name }}
-            </h3>
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="fw-bold mb-0">Editar Profissional</h2>
+            <p class="text-muted">Atualizando dados do(a) **Dr(a). {{ usuario_edit.first_name }}**</p>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-header bg-warning py-3 rounded-top-4">
+            <h5 class="mb-0 text-dark fw-bold">
+                <i class="fas fa-user-md me-2"></i>Formulário de Edição
+            </h5>
         </div>
         
         <form action="{% url 'edit_dentista_save' %}" method="post" class="card-body p-4">
             {% csrf_token %}
-            <input type="hidden" name="dentista_id" value="{{ user.id }}">
+            
+            <input type="hidden" name="dentista_id" value="{{ usuario_edit.id }}">
 
             <h5 class="text-secondary border-bottom pb-2 mb-3">Informações Pessoais</h5>
             <div class="row">
-                <div class="col-md-12 mb-3">
-                    <label class="fw-bold">Nome Completo</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-white"><img src="{% static 'dentista.png' %}" style="width: 18px;"></span>
-                        <input type="text" name="nome_completo" class="form-control" value="{{ user.first_name }}" required placeholder="Digite o nome completo do profissional">
-                    </div>
+                <div class="col-md-7 mb-3">
+                    <label class="fw-bold small">Nome Completo</label>
+                    <input type="text" name="nome_completo" class="form-control" value="{{ usuario_edit.first_name }}" required>
+                </div>
+                <div class="col-md-5 mb-3">
+                    <label class="fw-bold small">E-mail (Login)</label>
+                    <input type="email" name="email" class="form-control" value="{{ usuario_edit.email }}" required>
                 </div>
             </div>
 
             <div class="row">
-                <div class="col-md-4 mb-3">
-                    <label class="fw-bold">CPF</label>
-                    <input type="text" name="cpf" class="form-control cpf" value="{{ dentista.cpf|default:'' }}" placeholder="000.000.000-00">
-                </div>
-                <div class="col-md-4 mb-3">
-                    <label class="fw-bold">Data de Nascimento</label>
-                    <input type="date" name="data_nascimento" class="form-control" value="{{ dentista.data_nascimento|date:'Y-m-d' }}">
-                </div>
-                <div class="col-md-4 mb-3">
-                    <label class="fw-bold">Telefone / WhatsApp</label>
-                    <input type="text" name="telefone" class="form-control phone" value="{{ dentista.telefone|default:'' }}" placeholder="(00) 00000-0000">
-                </div>
-            </div>
-
-            <h5 class="text-secondary border-bottom pb-2 mb-3 mt-4">Informações Profissionais</h5>
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label class="fw-bold">E-mail (Login)</label>
-                    <input type="email" name="email" class="form-control" value="{{ user.email }}" required>
+                <div class="col-md-3 mb-3">
+                    <label class="fw-bold small">CPF</label>
+                    <input type="text" name="cpf" class="form-control cpf" value="{{ dentista.cpf }}">
                 </div>
                 <div class="col-md-3 mb-3">
-                    <label class="fw-bold">CRO</label>
+                    <label class="fw-bold small">CRO</label>
                     <input type="text" name="cro" class="form-control" value="{{ dentista.cro }}" required>
                 </div>
                 <div class="col-md-3 mb-3">
-                    <label class="fw-bold">Especialidade</label>
-                    <input type="text" name="especialidade" class="form-control" value="{{ dentista.especialidade }}" required>
+                    <label class="fw-bold small">Telefone</label>
+                    <input type="text" name="telefone" class="form-control phone" value="{{ dentista.telefone }}">
+                </div>
+                <div class="col-md-3 mb-3">
+                    <label class="fw-bold">Data de Nascimento</label>
+                    <input type="date" name="data_nascimento" class="form-control" value="{{ dentista.data_nascimento|date:'Y-m-d' }}">
                 </div>
             </div>
 
-            <h5 class="text-secondary border-bottom pb-2 mb-3 mt-4">Endereço</h5>
+            <div class="row">
+                <div class="col-md-12 mb-3">
+                    <label class="fw-bold small">Especialidade</label>
+                    <input type="text" name="especialidade" class="form-control" value="{{ dentista.especialidade }}" required placeholder="Ex: Ortodontia, Implantodontia...">
+                </div>
+            </div>
+
+            <h5 class="text-secondary border-bottom pb-2 mb-3 mt-4">Localização</h5>
             <div class="row">
                 <div class="col-md-12 mb-4">
-                    <label class="fw-bold">Endereço Profissional / Residencial</label>
-                    <textarea name="address" class="form-control" rows="2" placeholder="Rua, Número, Bairro, Cidade">{{ dentista.address }}</textarea>
+                    <label class="fw-bold small">Endereço Completo</label>
+                    <textarea name="address" class="form-control" rows="2">{{ dentista.address }}</textarea>
                 </div>
             </div>
 
             <div class="d-flex justify-content-between align-items-center border-top pt-4">
                 <a href="{% url 'manage_dentista' %}" class="btn btn-light px-4 border">
-                    Cancelar
+                    <i class="fas fa-times me-2"></i>Cancelar
                 </a>
-                <button type="submit" class="btn btn-warning px-5 fw-bold text-dark">
-                    Salvar Alterações
+                <button type="submit" class="btn btn-warning px-5 fw-bold text-dark shadow-sm">
+                    <i class="fas fa-save me-2"></i>Salvar Alterações
                 </button>
             </div>
         </form>
     </div>
 </div>
+{% endblock main_content %}
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+{% block custom_js %}
 <script>
     $(document).ready(function(){
         $('.cpf').mask('000.000.000-00');
-        $('.phone').mask('(00) 00000-0000');
+        $('.phone').mask('(00) 0 0000-0000');
     });
 </script>
-{% endblock main_content %}
+{% endblock custom_js %}

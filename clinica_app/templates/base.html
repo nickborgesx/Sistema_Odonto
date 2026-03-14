@@ -13,11 +13,8 @@
         body { background-color: #f8f9fa; font-family: 'Inter', sans-serif; color: #2c3e50; overflow-x: hidden; }
         h1, h2, h3, h4, h5, h6, .navbar-brand, .fw-bold { font-family: 'Poppins', sans-serif; font-weight: 600; letter-spacing: -0.01em; }
         .navbar { background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); padding: 8px 0; z-index: 1030; }
-        .navbar .container-fluid { padding-left: 30px; padding-right: 30px; }
-        .navbar-brand { color: white !important; font-size: 1.4rem; text-decoration: none; cursor: default; }
-        .nav-link-custom { font-family: 'Poppins', sans-serif; font-weight: 500; padding: 7px 18px; border-radius: 8px; transition: all 0.2s ease; background: rgba(255, 255, 255, 0.12); color: white !important; margin-left: 8px; border: 1px solid rgba(255, 255, 255, 0.2); backdrop-filter: blur(5px); text-decoration: none; display: inline-block; font-size: 0.9rem; }
-        .nav-link-custom:hover { background: rgba(255, 255, 255, 0.22); border-color: rgba(255, 255, 255, 0.4); }
-        .user-welcome { color: white; font-family: 'Poppins', sans-serif; font-size: 0.95rem; margin-right: 15px; font-weight: 400; }
+        .navbar-brand { color: white !important; font-size: 1.4rem; text-decoration: none; }
+        .nav-link-custom { font-family: 'Poppins', sans-serif; font-weight: 500; padding: 7px 18px; border-radius: 8px; background: rgba(255, 255, 255, 0.12); color: white !important; margin-left: 8px; border: 1px solid rgba(255, 255, 255, 0.2); backdrop-filter: blur(5px); text-decoration: none; display: inline-block; font-size: 0.9rem; }
         .main-wrapper { display: flex; min-height: calc(100vh - 60px); }
         #sidebar { width: 260px; background: white; border-right: 1px solid #e9ecef; transition: all 0.3s; }
         .sidebar-link { display: block; padding: 15px 25px; color: #495057; text-decoration: none; font-family: 'Poppins', sans-serif; font-weight: 500; border-bottom: 1px solid #f8f9fa; transition: 0.3s; }
@@ -32,21 +29,16 @@
                 <img src="{% static 'denteb.png' %}" alt="Logo" width="30" height="30" class="me-2">
                 OdontoGestão
             </span>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto align-items-center">
                     {% if not user.is_authenticated %}
                         <li class="nav-item"><a class="nav-link-custom" href="{% url 'home' %}">Início</a></li>
                         <li class="nav-item"><a class="nav-link-custom" href="{% url 'login' %}">Entrar no Sistema</a></li>
                     {% else %}
-                        <span class="user-welcome">Olá, {{ user.first_name }}!</span>
+                        {# Aqui 'user' sempre será o Gerente logado, corrigindo o bug da saudação #}
+                        <span class="user-welcome" style="color: white; margin-right: 15px;">Olá, {{ user.first_name }}!</span>
                         <li class="nav-item">
-                            <a class="nav-link-custom" href="{% url 'logout_user' %}">
-                                <img src="{% static 'saida.png' %}" alt="Sair" style="width: 18px; height: 18px; margin-right: 6px; vertical-align: middle;">
-                                Sair
-                            </a>
+                            <a class="nav-link-custom" href="{% url 'logout_user' %}">Sair</a>
                         </li>
                     {% endif %}
                 </ul>
@@ -59,33 +51,54 @@
         <aside id="sidebar">
             <div class="p-4 border-bottom bg-light">
                 <small class="text-uppercase fw-bold text-muted">
-                    {% if user.user_type == '1' %}Painel Gerente{% else %}Painel Dentista{% endif %}
+                    {% if user.user_type == '1' %}Painel Gerente
+                    {% elif user.user_type == '2' %}Painel Médico
+                    {% elif user.user_type == '4' %}Painel Recepção
+                    {% endif %}
                 </small>
             </div>
             <nav class="mt-2">
+                {# Lógica de permissão de sidebar baseada no tipo do usuário logado #}
                 {% if user.user_type == '2' %}
                     <a href="{% url 'dentista_home' %}" class="sidebar-link">
-                        <img src="{% static 'computador.png' %}" style="width: 20px; height: 20px; margin-right: 8px;"> Meu Painel
+                        <img src="{% static 'computador.png' %}" width="20" class="me-2"> Meu Painel
                     </a>
                     <a href="{% url 'dentista_manage_paciente' %}" class="sidebar-link">
-                        <img src="{% static 'utilizador.png' %}" style="width: 20px; height: 20px; margin-right: 8px;"> Pacientes
-                    </a>
-                    <a href="#" class="sidebar-link">
-                        <img src="{% static 'calendario.png' %}" style="width: 20px; height: 20px; margin-right: 8px;"> Minha Agenda
+                        <img src="{% static 'utilizador.png' %}" width="20" class="me-2"> Pacientes
                     </a>
                     <a href="{% url 'add_consulta' %}" class="sidebar-link">
-                        <img src="{% static 'adicionar.png' %}" style="width: 20px; height: 20px; margin-right: 8px;"> Agendar Consulta
+                        <img src="{% static 'adicionar.png' %}" width="20" class="me-2"> Agendar Consulta
                     </a>
 
                 {% elif user.user_type == '1' %}
+                    <a href="{% url 'gerente_home' %}" class="sidebar-link">
+                        <img src="{% static 'lista.png' %}" width="20" class="me-2"> Dashboard
+                    </a>
+                    <a href="{% url 'manage_dentista' %}" class="sidebar-link">
+                        <img src="{% static 'dentista.png' %}" width="20" class="me-2"> Médicos
+                    </a>
                     <a href="{% url 'manage_paciente' %}" class="sidebar-link">
-                        <img src="{% static 'utilizador.png' %}" style="width: 20px; height: 20px; margin-right: 8px;"> Pacientes
+                        <img src="{% static 'utilizador.png' %}" width="20" class="me-2"> Pacientes
+                    </a>
+                    <a href="{% url 'manage_recepcionista' %}" class="sidebar-link">
+                        <img src="{% static 'recepcionista.png' %}" width="20" class="me-2"> Recepcionistas
+                    </a>
+                    <a href="{% url 'manage_consulta' %}" class="sidebar-link">
+                        <img src="{% static 'calendario.png' %}" width="20" class="me-2"> Agenda Geral
+                    </a>
+
+                {% elif user.user_type == '4' %}
+                    <a href="{% url 'recepcionista_home' %}" class="sidebar-link">
+                        <img src="{% static 'lista.png' %}" width="20" class="me-2"> Painel Recepção
+                    </a>
+                    <a href="{% url 'manage_paciente' %}" class="sidebar-link">
+                        <img src="{% static 'utilizador.png' %}" width="20" class="me-2"> Pacientes
+                    </a>
+                    <a href="{% url 'manage_consulta' %}" class="sidebar-link">
+                        <img src="{% static 'calendario.png' %}" width="20" class="me-2"> Agenda
                     </a>
                     <a href="{% url 'add_consulta' %}" class="sidebar-link">
-                        <img src="{% static 'adicionar.png' %}" style="width: 20px; height: 20px; margin-right: 8px;"> Agendar Consulta
-                    </a>
-                    <a href="{% url 'gerente_home' %}" class="sidebar-link">
-                        <img src="{% static 'lista.png' %}" style="width: 20px; height: 20px; margin-right: 8px;"> Painel Administrativo
+                        <img src="{% static 'adicionar.png' %}" width="20" class="me-2"> Novo Agendamento
                     </a>
                 {% endif %}
             </nav>
@@ -93,11 +106,26 @@
         {% endif %}
 
         <main id="content-area">
-            <div class="container-fluid mt-3">
-                {% block main_content %}{% endblock main_content %}
-            </div>
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert {% if message.tags == 'error' %}alert-danger{% else %}alert-{{ message.tags }}{% endif %} alert-dismissible fade show shadow-sm" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+            {% block main_content %}{% endblock %}
         </main>
     </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            $('.cpf').mask('000.000.000-00');
+            $('.phone').mask('(00) 0 0000-0000');
+        });
+    </script>
 </body>
 </html>

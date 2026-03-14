@@ -2,93 +2,69 @@
 {% load static %}
 
 {% block main_content %}
-<div class="container-fluid">
-    
-    {% if messages %}
-        <div class="row">
-            <div class="col-12">
-                {% for message in messages %}
-                    <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-danger{% endif %} alert-dismissible fade show shadow-sm" role="alert">
-                        <i class="fas {% if message.tags == 'success' %}fa-check-circle{% else %}fa-exclamation-triangle{% endif %} me-2"></i>
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                {% endfor %}
-            </div>
+<div class="container-fluid py-4">
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-header bg-success py-3 text-white rounded-top-4">
+            <h3 class="card-title mb-0 fw-bold"><i class="fas fa-hospital-user me-2"></i>Cadastrar Paciente</h3>
         </div>
-    {% endif %}
-
-    <div class="card shadow-sm border-0">
-        <div class="card-header bg-success py-3 text-white">
-            <h3 class="card-title mb-0 fw-bold">
-                <i class="fas fa-user-plus me-2"></i> Cadastrar Novo Paciente
-            </h3>
-        </div>
-        
         <form action="{% url 'add_paciente_save' %}" method="post" class="card-body p-4">
             {% csrf_token %}
-
-            <h5 class="text-secondary border-bottom pb-2 mb-3">Informações Pessoais</h5>
-            <div class="row">
-                <div class="col-md-8 mb-3">
-                    <label class="fw-bold">Nome Completo</label>
-                    <input type="text" name="nome_completo" class="form-control" placeholder="Nome completo do paciente" value="{{ dados.nome_completo|default:'' }}" required>
+            <div class="row g-3">
+                <div class="col-md-8">
+                    <label class="form-label fw-bold">Nome Completo</label>
+                    <input type="text" name="nome_completo" class="form-control" required>
                 </div>
-                <div class="col-md-4 mb-3">
-                    <label class="fw-bold">Data de Nascimento</label>
-                    <input type="date" name="data_nascimento" class="form-control" value="{{ dados.data_nascimento|default:'' }}">
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-md-4 mb-3">
-                    <label class="fw-bold">CPF</label>
-                    <input type="text" name="cpf" class="form-control cpf" placeholder="000.000.000-00" value="{{ dados.cpf|default:'' }}">
-                </div>
-                <div class="col-md-4 mb-3">
-                    <label class="fw-bold">Telefone / WhatsApp</label>
-                    <input type="text" name="telefone" class="form-control phone" placeholder="(00) 00000-0000" value="{{ dados.telefone|default:'' }}">
-                </div>
-                <div class="col-md-4 mb-3">
-                    <label class="fw-bold">Gênero</label>
-                    <select name="genero" class="form-control">
-                        <option value="Masculino" {% if dados.genero == "Masculino" %}selected{% endif %}>Masculino</option>
-                        <option value="Feminino" {% if dados.genero == "Feminino" %}selected{% endif %}>Feminino</option>
-                        <option value="Outro" {% if dados.genero == "Outro" %}selected{% endif %}>Outro</option>
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">Gênero</label>
+                    <select name="genero" class="form-control" required>
+                        <option value="">Selecione...</option>
+                        <option value="Masculino">Masculino</option>
+                        <option value="Feminino">Feminino</option>
+                        <option value="Outro">Outro</option>
                     </select>
                 </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">CPF</label>
+                    <input type="text" name="cpf" class="form-control cpf" placeholder="000.000.000-00" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">Telefone</label>
+                    <input type="text" name="telefone" class="form-control phone" placeholder="(00) 0 0000-0000">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">Data de Nascimento</label>
+                    <input type="date" name="data_nascimento" class="form-control">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">E-mail</label>
+                    <input type="email" name="email" class="form-control" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Senha Inicial</label>
+                    <input type="password" name="password" class="form-control" required>
+                </div>
+                <div class="col-md-12">
+                    <label class="form-label fw-bold">Endereço Residencial</label>
+                    <input type="text" name="address" class="form-control">
+                </div>
+                <div class="col-md-12">
+                    <label class="form-label fw-bold">Histórico Médico / Observações</label>
+                    <textarea name="historico_medico" class="form-control" rows="3"></textarea>
+                </div>
             </div>
-
-            <h5 class="text-secondary border-bottom pb-2 mb-3 mt-4">Contato e Saúde</h5>
-            <div class="row">
-                <div class="col-md-12 mb-3">
-                    <label class="fw-bold">E-mail (Para notificações)</label>
-                    <input type="email" name="email" class="form-control" placeholder="paciente@exemplo.com" value="{{ dados.email|default:'' }}" required>
-                </div>
-                <div class="col-md-12 mb-3">
-                    <label class="fw-bold">Endereço Residencial</label>
-                    <input type="text" name="address" class="form-control" placeholder="Rua, Número, Bairro, Cidade" value="{{ dados.address|default:'' }}">
-                </div>
-                <div class="col-md-12 mb-4">
-                    <label class="fw-bold">Histórico Médico / Observações</label>
-                    <textarea name="historico_medico" class="form-control" rows="3" placeholder="Alergias, remédios, observações importantes...">{{ dados.historico_medico|default:'' }}</textarea>
-                </div>
-            </div>
-
-            <div class="d-grid gap-2 d-md-flex justify-content-md-end border-top pt-4">
-                <a href="{% url 'manage_paciente' %}" class="btn btn-light px-4 border">Cancelar</a>
-                <button type="submit" class="btn btn-success px-5 fw-bold text-white">Salvar Paciente</button>
+            <div class="text-end mt-4">
+                <button type="submit" class="btn btn-success px-5 fw-bold shadow-sm text-white">Salvar Paciente</button>
             </div>
         </form>
     </div>
 </div>
+{% endblock %}
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+{% block custom_js %}
 <script>
     $(document).ready(function(){
         $('.cpf').mask('000.000.000-00');
-        $('.phone').mask('(00) 00000-0000');
+        $('.phone').mask('(00) 0 0000-0000');
     });
 </script>
-{% endblock main_content %}
+{% endblock %}

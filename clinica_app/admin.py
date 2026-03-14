@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import CustomUser, Gerente, Dentista, Paciente, Procedimento, Consulta
+from .models import CustomUser, Gerente, Dentista, Paciente, Procedimento, Consulta, Recepcionista
 
 # Configuração para o Usuário Personalizado aparecer com os campos certos
 class UserModel(UserAdmin):
@@ -29,3 +29,4 @@ admin.site.register(Dentista)
 admin.site.register(Paciente)
 admin.site.register(Procedimento)
 admin.site.register(Consulta)
+admin.site.register(Recepcionista)

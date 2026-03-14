@@ -1,12 +1,18 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from .models import CustomUser, Dentista, Paciente, Procedimento, Consulta
+from .models import CustomUser, Dentista, Paciente, Procedimento, Consulta, Recepcionista
 from django.utils import timezone
 from django.shortcuts import render, redirect
 from django.db.models import Q
 from datetime import date
 from django.contrib.auth.decorators import login_required
 import uuid
+import re
+
+def limpar_valor(valor):
+    if valor:
+        return re.sub(r'\D', '', valor)
+    return valor
 
 def home(request):
     return render(request, 'home.html')
@@ -23,16 +29,18 @@ def doLogin(request):
     user = authenticate(request, username=email, password=password)
     
     if user is not None:
-        login(request, user)
-        user_type = str(user.user_type)
-        if user_type == "1":
-            return redirect('gerente_home')
-        elif user_type == "2":
-            return redirect('dentista_home')
-        elif user_type == "3":
-            return redirect('paciente_home')
-        else:
-            return redirect('home')
+            login(request, user)
+            user_type = str(user.user_type)
+            if user_type == "1":
+                return redirect('gerente_home')
+            elif user_type == "2":
+                return redirect('dentista_home')
+            elif user_type == "3":
+                return redirect('paciente_home')
+            elif user_type == "4":
+                return redirect('recepcionista_home') # Novo redirecionamento
+            else:
+                return redirect('home')
     else:
         messages.error(request, "E-mail ou senha inválidos.")
         return redirect('login')
@@ -48,6 +56,16 @@ def gerente_home(request):
         messages.error(request, "Acesso restrito a gerentes.")
         return redirect('home')
     return render(request, 'gerente_template/home.html')
+
+@login_required
+def recepcionista_home(request):
+    # Garante que apenas recepcionistas (tipo 4) entrem aqui
+    if str(request.user.user_type) != "4":
+        messages.error(request, "Acesso negado. Esta área é restrita à recepção.")
+        return redirect('home') # Ou redireciona para a home do cargo dele
+    
+    return render(request, "recepcionista_template/home_content.html")
+
 
 @login_required
 def dentista_home(request):
@@ -97,43 +115,43 @@ def add_dentista_save(request):
     if request.method != "POST":
         return redirect('add_dentista')
     
-    nome_completo = request.POST.get('nome_completo')
+    nome = request.POST.get('nome_completo')
     email = request.POST.get('email')
     password = request.POST.get('password')
+    cpf_limpo = limpar_valor(request.POST.get('cpf'))
+    telefone = limpar_valor(request.POST.get('telefone'))
+    especialidade = request.POST.get('especialidade')
     cro = request.POST.get('cro')
-    cpf = request.POST.get('cpf')
+    address = request.POST.get('address')
+    data_nasc = request.POST.get('data_nascimento') # Captura a data
 
-    # Validações de duplicidade
-    if CustomUser.objects.filter(username=email).exists():
-        messages.error(request, "E-mail já cadastrado!")
-        return redirect('add_dentista')
-    
-    if Dentista.objects.filter(cro=cro).exists():
-        messages.error(request, "Este CRO já está registrado!")
-        return redirect('add_dentista')
+    # Validação Global de CPF (Não permite CPF duplicado em nenhuma tabela)
+    if cpf_limpo:
+        if Dentista.objects.filter(cpf=cpf_limpo).exists() or \
+           Recepcionista.objects.filter(cpf=cpf_limpo).exists() or \
+           Paciente.objects.filter(cpf=cpf_limpo).exists():
+            messages.error(request, "Erro: Este CPF já consta no sistema.")
+            return redirect('add_dentista')
 
     try:
-        user = CustomUser.objects.create_user(
-            username=email, password=password, email=email,
-            first_name=nome_completo, last_name="", user_type='2'
-        )
-        # O signal já criou o dentista, agora apenas preenchemos
+        # Cria o usuário (tipo 2 = Dentista)
+        user = CustomUser.objects.create_user(username=email, password=password, email=email, first_name=nome, user_type='2')
+        
+        # O sinal do Django já cria o perfil Dentista, então apenas buscamos e atualizamos
         dentista = user.dentista
-        dentista.address = request.POST.get('address')
-        dentista.especialidade = request.POST.get('especialidade')
+        dentista.cpf = cpf_limpo
+        dentista.telefone = telefone
+        dentista.especialidade = especialidade
         dentista.cro = cro
-        dentista.cpf = cpf
-        dentista.telefone = request.POST.get('telefone')
-        
-        data_nasc = request.POST.get('data_nascimento')
-        if data_nasc: dentista.data_nascimento = data_nasc
-        
+        dentista.address = address
+        dentista.data_nascimento = data_nasc # Salva a data
         dentista.save()
-        messages.success(request, f"Dentista {nome_completo} cadastrado!")
-        return redirect('manage_dentista')
+        
+        messages.success(request, f"Dr(a). {nome} cadastrado(a) com sucesso!")
     except Exception as e:
-        messages.error(request, f"Erro: {e}")
-        return redirect('add_dentista')
+        messages.error(request, f"Erro ao cadastrar: {e}")
+    
+    return redirect('manage_dentista')
 
 def manage_dentista(request):
     dentistas = Dentista.objects.all() # Busca todos os dentistas
@@ -151,41 +169,51 @@ def delete_dentista(request, dentista_id):
     return redirect('manage_dentista')
 
 def edit_dentista(request, dentista_id):
-    # Busca o usuário e os dados do dentista para preencher o formulário
-    user = CustomUser.objects.get(id=dentista_id)
-    dentista = user.dentista
-    return render(request, "gerente_template/edit_dentista_template.html", {"dentista": dentista, "user": user})
+    usuario_edit = CustomUser.objects.get(id=dentista_id) # Aqui
+    dentista = usuario_edit.dentista
+    return render(request, "gerente_template/edit_dentista_template.html", {
+        "dentista": dentista, 
+        "usuario_edit": usuario_edit # E aqui
+    })
 
 def edit_dentista_save(request):
     if request.method != "POST":
         return redirect('manage_dentista')
     
-    dentista_id = request.POST.get('dentista_id')
+    user_id = request.POST.get('dentista_id')
+    cpf_limpo = limpar_valor(request.POST.get('cpf'))
     
     try:
-        # Usamos get() para buscar o usuário pelo ID
-        user = CustomUser.objects.get(id=dentista_id)
-        
-        # Salvando o nome completo no first_name
+        user = CustomUser.objects.get(id=user_id)
+        dentista = user.dentista
+
+        # Validação Global de CPF na Edição (Exclui o próprio registro da checagem)
+        if cpf_limpo:
+            if Dentista.objects.filter(cpf=cpf_limpo).exclude(id=dentista.id).exists() or \
+               Recepcionista.objects.filter(cpf=cpf_limpo).exists() or \
+               Paciente.objects.filter(cpf=cpf_limpo).exists():
+                messages.error(request, "Erro: Este CPF já pertence a outro usuário.")
+                return redirect('manage_dentista')
+
+        # Atualiza o Usuário
         user.first_name = request.POST.get('nome_completo')
-        user.last_name = "" 
-        user.email = request.POST.get('email') # Não esqueça do email se ele mudar!
+        user.email = request.POST.get('email')
         user.save()
 
-        # Acessando o objeto dentista relacionado
-        dentista = user.dentista
+        # Atualiza o Perfil do Dentista
+        dentista.cpf = cpf_limpo
+        dentista.telefone = limpar_valor(request.POST.get('telefone'))
         dentista.especialidade = request.POST.get('especialidade')
         dentista.cro = request.POST.get('cro')
         dentista.address = request.POST.get('address')
-        dentista.cpf = request.POST.get('cpf')
-        dentista.telefone = request.POST.get('telefone')
-        dentista.data_nascimento = request.POST.get('data_nascimento')
         
+        data_nasc = request.POST.get('data_nascimento')
+        if data_nasc:
+            dentista.data_nascimento = data_nasc
+            
         dentista.save()
-        messages.success(request, f"Dados do(a) Dr(a). {user.first_name} atualizados com sucesso!")
 
-    except CustomUser.DoesNotExist:
-        messages.error(request, "Usuário não encontrado.")
+        messages.success(request, "Dados do profissional atualizados com sucesso!")
     except Exception as e:
         messages.error(request, f"Erro ao atualizar: {e}")
     
@@ -201,47 +229,33 @@ def add_paciente(request):
     return render(request, "gerente_template/add_paciente_template.html")
 
 def add_paciente_save(request):
-    if request.method != "POST":
-        return redirect('add_paciente')
-
-    data = request.POST
-    nome_completo = data.get('nome_completo')
-    email = data.get('email')
-    cpf = data.get('cpf')
-
-    if CustomUser.objects.filter(username=email).exists():
-        messages.error(request, "Este e-mail já está sendo usado.")
-        return render(request, 'gerente_template/add_paciente_template.html', {'dados': data})
+    if request.method != "POST": return redirect('add_paciente')
     
-    # CORREÇÃO AQUI: Adicionado 'gerente_template/'
-    if cpf and Paciente.objects.filter(cpf=cpf).exists():
-        messages.error(request, "Este CPF já está cadastrado.")
-        return render(request, 'gerente_template/add_paciente_template.html', {'dados': data})
+    nome = request.POST.get('nome_completo')
+    email = request.POST.get('email')
+    cpf_limpo = limpar_valor(request.POST.get('cpf'))
+
+    if cpf_limpo:
+        if Paciente.objects.filter(cpf=cpf_limpo).exists() or \
+           Dentista.objects.filter(cpf=cpf_limpo).exists() or \
+           Recepcionista.objects.filter(cpf=cpf_limpo).exists():
+            messages.error(request, "CPF já cadastrado.")
+            return redirect('add_paciente')
 
     try:
-        user = CustomUser.objects.create_user(
-            username=email, password=str(uuid.uuid4()), email=email,
-            first_name=nome_completo, user_type='3'
-        )
-        
+        # Senha padrão para pacientes ou gerada aleatoriamente
+        password = "odonto123" 
+        user = CustomUser.objects.create_user(username=email, password=password, email=email, first_name=nome, user_type='3')
         paciente = user.paciente
-        paciente.genero = data.get('genero')
-        paciente.cpf = cpf
-        paciente.telefone = data.get('telefone')
-        paciente.address = data.get('address')
-        paciente.historico_medico = data.get('historico_medico')
-        
-        data_nasc = data.get('data_nascimento')
-        if data_nasc: paciente.data_nascimento = data_nasc
-        
+        paciente.cpf = cpf_limpo
+        paciente.telefone = limpar_valor(request.POST.get('telefone'))
+        paciente.address = request.POST.get('address')
         paciente.save()
-        messages.success(request, f"Paciente {nome_completo} cadastrado!")
-        return redirect('manage_paciente')
-
+        messages.success(request, "Paciente cadastrado com sucesso!")
     except Exception as e:
-        messages.error(request, f"Erro crítico: {e}")
-        # CORREÇÃO AQUI: Adicionado 'gerente_template/'
-        return render(request, 'gerente_template/add_paciente_template.html', {'dados': data})
+        messages.error(request, f"Erro: {e}")
+    
+    return redirect('manage_paciente')
     
 # Editar Paciente
 def edit_paciente(request, paciente_id):
@@ -251,42 +265,34 @@ def edit_paciente(request, paciente_id):
 
 # Salvar Edição
 def edit_paciente_save(request):
-    if request.method != "POST":
-        return redirect('manage_paciente')
+    if request.method != "POST": return redirect('manage_paciente')
     
-    paciente_id = request.POST.get('paciente_id')
-    
+    user_id = request.POST.get('paciente_id')
+    cpf_limpo = limpar_valor(request.POST.get('cpf'))
+
     try:
-        # Busca o usuário pelo ID vindo do input hidden
-        user = CustomUser.objects.get(id=paciente_id)
-        
-        # Salvando o Nome Completo no campo first_name e limpando o last_name
+        user = CustomUser.objects.get(id=user_id)
+        paciente = user.paciente
+
+        if cpf_limpo:
+            if Paciente.objects.filter(cpf=cpf_limpo).exclude(id=paciente.id).exists() or \
+               Dentista.objects.filter(cpf=cpf_limpo).exists() or \
+               Recepcionista.objects.filter(cpf=cpf_limpo).exists():
+                messages.error(request, "CPF já em uso.")
+                return redirect('manage_paciente')
+
         user.first_name = request.POST.get('nome_completo')
-        user.last_name = "" 
         user.email = request.POST.get('email')
         user.save()
 
-        # Acessando o model Paciente (extensão do User)
-        paciente = user.paciente
+        paciente.cpf = cpf_limpo
+        paciente.telefone = limpar_valor(request.POST.get('telefone'))
         paciente.address = request.POST.get('address')
-        paciente.genero = request.POST.get('genero')
-        paciente.historico_medico = request.POST.get('historico_medico')
-        
-        # --- NOVOS CAMPOS ATUALIZADOS ---
-        paciente.cpf = request.POST.get('cpf')
-        paciente.telefone = request.POST.get('telefone')
-        paciente.data_nascimento = request.POST.get('data_nascimento')
-        # -------------------------------
-        
         paciente.save()
-
-        messages.success(request, f"Cadastro de {user.first_name} atualizado com sucesso!")
-        
-    except CustomUser.DoesNotExist:
-        messages.error(request, "Paciente não encontrado no sistema.")
+        messages.success(request, "Paciente atualizado!")
     except Exception as e:
-        messages.error(request, f"Erro ao atualizar paciente: {e}")
-        
+        messages.error(request, f"Erro: {e}")
+    
     return redirect('manage_paciente')
 
 # Deletar Paciente
@@ -321,6 +327,13 @@ def dentista_home(request):
 def manage_procedimento(request):
     procedimentos = Procedimento.objects.all()
     return render(request, "gerente_template/manage_procedimento_template.html", {"procedimentos": procedimentos})
+
+@login_required
+def manage_recepcionista(request):
+    if str(request.user.user_type) != "1": 
+        return redirect('home')
+    recepcionistas = Recepcionista.objects.all()
+    return render(request, "gerente_template/manage_recepcionista_template.html", {"recepcionistas": recepcionistas})
 
 def add_procedimento_save(request):
     if request.method != "POST":
@@ -484,3 +497,109 @@ def dentista_view_paciente(request, paciente_id):
         "consultas": historico_consultas
     }
     return render(request, "dentista_template/view_paciente.html", context)
+
+
+def add_recepcionista(request):
+    return render(request, "gerente_template/add_recepcionista_template.html")
+
+# Salvar Cadastro
+def add_recepcionista_save(request):
+    if request.method != "POST":
+        return redirect('add_recepcionista')
+    
+    nome = request.POST.get('nome_completo')
+    email = request.POST.get('email')
+    password = request.POST.get('password')
+    cpf_limpo = limpar_valor(request.POST.get('cpf'))
+    telefone = limpar_valor(request.POST.get('telefone'))
+    endereco = request.POST.get('endereco')
+    data_nasc = request.POST.get('data_nasc')
+
+    # Validação Global de CPF
+    if cpf_limpo:
+        if Recepcionista.objects.filter(cpf=cpf_limpo).exists() or \
+           Dentista.objects.filter(cpf=cpf_limpo).exists() or \
+           Paciente.objects.filter(cpf=cpf_limpo).exists():
+            messages.error(request, "Erro: Este CPF já consta no sistema.")
+            return redirect('add_recepcionista')
+
+    try:
+        user = CustomUser.objects.create_user(username=email, password=password, email=email, first_name=nome, user_type='4')
+        recepcionista = user.recepcionista
+        recepcionista.cpf = cpf_limpo
+        recepcionista.telefone = telefone
+        recepcionista.endereco = endereco
+        recepcionista.data_nascimento = data_nasc
+        recepcionista.save()
+        messages.success(request, f"Recepcionista {nome} cadastrado(a) com sucesso!")
+    except Exception as e:
+        messages.error(request, f"Erro ao cadastrar: {e}")
+    
+    return redirect('manage_recepcionista')
+
+# Editar Recepcionista
+def edit_recepcionista(request, recepcionista_id):
+    usuario_editado = CustomUser.objects.get(id=recepcionista_id)
+    recepcionista = usuario_editado.recepcionista
+    
+    return render(request, "gerente_template/edit_recepcionista_template.html", {
+        "recepcionista": recepcionista, 
+        "usuario_editado": usuario_editado
+    })
+
+# Salvar Edição
+# Salvar Edição
+def edit_recepcionista_save(request):
+    if request.method != "POST":
+        return redirect('manage_recepcionista')
+    
+    user_id = request.POST.get('recepcionista_id')
+    cpf_input = request.POST.get('cpf')
+    cpf_limpo = limpar_valor(cpf_input)
+    
+    try:
+        # Busca o usuário e o perfil vinculado
+        user = CustomUser.objects.get(id=user_id)
+        recepcionista = user.recepcionista # Verifique se não escreveu 'recepci' aqui
+
+        # Validação Global de CPF
+        if cpf_limpo:
+            if Recepcionista.objects.filter(cpf=cpf_limpo).exclude(id=recepcionista.id).exists() or \
+               Dentista.objects.filter(cpf=cpf_limpo).exists() or \
+               Paciente.objects.filter(cpf=cpf_limpo).exists():
+                messages.error(request, "Erro: Este CPF já pertence a outro cadastro.")
+                return redirect('manage_recepcionista')
+
+        # Atualiza dados do CustomUser
+        user.first_name = request.POST.get('nome_completo')
+        user.email = request.POST.get('email')
+        user.save()
+
+        # Atualiza dados do Perfil Recepcionista
+        recepcionista.cpf = cpf_limpo
+        recepcionista.telefone = limpar_valor(request.POST.get('telefone'))
+        recepcionista.endereco = request.POST.get('endereco')
+        
+        # Captura a data do formulário (verifique se no HTML o name é 'data_nasc')
+        data_nascimento_form = request.POST.get('data_nasc')
+        if data_nascimento_form:
+            recepcionista.data_nascimento = data_nascimento_form
+            
+        recepcionista.save()
+
+        messages.success(request, "Dados atualizados com sucesso!")
+    except Exception as e:
+        # O erro 'recepci' is not defined aparecerá aqui se houver erro de escrita
+        messages.error(request, f"Erro ao atualizar: {e}")
+    
+    return redirect('manage_recepcionista')
+
+# Deletar Recepcionista
+def delete_recepcionista(request, recepcionista_id):
+    try:
+        user = CustomUser.objects.get(id=recepcionista_id)
+        user.delete() # Cascade deleta o perfil da Recepcionista automaticamente
+        messages.success(request, "Registro removido com sucesso.")
+    except Exception as e:
+        messages.error(request, f"Erro ao excluir: {e}")
+    return redirect('manage_recepcionista')

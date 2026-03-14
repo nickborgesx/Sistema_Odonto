@@ -8,6 +8,7 @@ class CustomUser(AbstractUser):
         ('1', 'Gerente'),
         ('2', 'Dentista'),
         ('3', 'Paciente'),
+        ('4', 'Recepcionista'), # Novo tipo
     )
     # Garante que o email seja obrigatório e único
     email = models.EmailField(unique=True) 
@@ -54,6 +55,17 @@ class Consulta(models.Model):
     data_consulta = models.DateTimeField()
     status = models.BooleanField(default=False)
 
+class Recepcionista(models.Model):
+    admin = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
+    cpf = models.CharField(max_length=14, null=True, blank=True, unique=True)
+    telefone = models.CharField(max_length=20, null=True, blank=True)
+    endereco = models.TextField(null=True, blank=True)
+    data_nascimento = models.DateField(null=True, blank=True)
+
+    def __str__(self):
+        return self.admin.first_name
+
+# Atualize o Signal
 @receiver(post_save, sender=CustomUser)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
@@ -63,3 +75,5 @@ def create_user_profile(sender, instance, created, **kwargs):
             Dentista.objects.create(admin=instance)
         elif instance.user_type == '3':
             Paciente.objects.create(admin=instance)
+        elif instance.user_type == '4':
+            Recepcionista.objects.create(admin=instance) # Novo perfil

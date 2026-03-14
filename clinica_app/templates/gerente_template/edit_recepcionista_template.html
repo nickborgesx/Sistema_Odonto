@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block main_content %}
+<div class="container-fluid py-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2 class="fw-bold mb-0">Editar Recepcionista</h2>
+            <p class="text-muted">Atualize os dados de <strong>{{ recepcionista.admin.first_name }}</strong>.</p>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-body p-4">
+            <form action="{% url 'edit_recepcionista_save' %}" method="post">
+                {% csrf_token %}
+                
+                <input type="hidden" name="recepcionista_id" value="{{ recepcionista.admin.id }}">
+
+                <h5 class="text-warning fw-bold mb-4 border-bottom pb-2">Informações Pessoais</h5>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-8">
+                        <label class="form-label small fw-bold">Nome Completo</label>
+                        <input type="text" name="nome_completo" class="form-control" value="{{ recepcionista.admin.first_name }}" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold">CPF</label>
+                        <input type="text" name="cpf" class="form-control cpf" placeholder="000.000.000-00" value="{{ recepcionista.cpf }}">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">Telefone</label>
+                        <input type="text" name="telefone" class="form-control phone" value="{{ recepcionista.telefone }}">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">Data de Nascimento</label>
+                        <input type="date" name="data_nasc" class="form-control" value="{{ recepcionista.data_nascimento|date:'Y-m-d' }}">
+                    </div>
+                </div>
+
+                <h5 class="text-warning fw-bold mb-4 border-bottom pb-2">Credenciais & Endereço</h5>
+                <div class="row g-3">
+                    <div class="col-md-12">
+                        <label class="form-label small fw-bold">E-mail (Login)</label>
+                        <input type="email" name="email" class="form-control" value="{{ recepcionista.admin.email }}" required>
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label small fw-bold">Endereço Residencial</label>
+                        <textarea name="endereco" class="form-control" rows="2">{{ recepcionista.endereco|default:'' }}</textarea>
+                    </div>
+                </div>
+
+                <div class="row mt-5">
+                    <div class="col-12 text-end">
+                        <a href="{% url 'manage_recepcionista' %}" class="btn btn-light px-4 me-2">Voltar</a>
+                        <button type="submit" class="btn btn-warning shadow-sm px-5 fw-bold text-dark">
+                            <i class="fas fa-sync-alt me-2"></i> Atualizar Cadastro
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock main_content %}
+
+{% block custom_js %}
+<script>
+    $(document).ready(function(){
+        $('.cpf').mask('000.000.000-00');
+        $('.phone').mask('(00) 0 0000-0000');
+    });
+</script>
+{% endblock custom_js %}

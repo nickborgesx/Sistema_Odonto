@@ -34,5 +34,12 @@ urlpatterns = [
     path('manage_consulta/', views.manage_consulta, name="manage_consulta"),
     path('delete_consulta/<consulta_id>/', views.delete_consulta, name="delete_consulta"),
     path('dentista_manage_paciente/', views.dentista_manage_paciente, name="dentista_manage_paciente"),
-    path('view_paciente/<paciente_id>/', views.dentista_view_paciente, name="view_paciente")
+    path('view_paciente/<paciente_id>/', views.dentista_view_paciente, name="view_paciente"),
+    path('recepcionista_home/', views.recepcionista_home, name="recepcionista_home"),
+    path('manage_recepcionista/', views.manage_recepcionista, name="manage_recepcionista"),
+    path('add_recepcionista/', views.add_recepcionista, name="add_recepcionista"),
+    path('add_recepcionista_save', views.add_recepcionista_save, name="add_recepcionista_save"),
+    path('edit_recepcionista/<recepcionista_id>/', views.edit_recepcionista, name="edit_recepcionista"),
+    path('edit_recepcionista_save', views.edit_recepcionista_save, name="edit_recepcionista_save"),
+    path('delete_recepcionista/<recepcionista_id>/', views.delete_recepcionista, name="delete_recepcionista"),
 ]
