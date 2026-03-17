@@ -7,18 +7,19 @@ class LoginRequiredMiddleware:
 
     def __call__(self, request):
         # URLs que qualquer pessoa (mesmo deslogada) pode acessar
-        exempt_urls = [
+        exempt_exact_paths = {
             reverse('home'),
-            reverse('login'),
             reverse('doLogin'),
-            '/admin/', # Adicione esta linha para liberar o painel do Django
-        ]
+        }
+        exempt_prefixes = (
+            '/admin/',  # libera admin (inclui /admin/login/)
+        )
 
         # Verifica se o usuário não está logado E se a URL atual não começa com os caminhos liberados
         if not request.user.is_authenticated:
-            # Verifica se o caminho atual não está na lista de exceções
-            if not any(request.path.startswith(url) for url in exempt_urls):
-                return redirect('login')
+            # Evita o bug de `startswith('/')` liberar tudo: paths exatos vs. prefixos.
+            if request.path not in exempt_exact_paths and not request.path.startswith(exempt_prefixes):
+                return redirect('home')
 
         response = self.get_response(request)
         return response

@@ -28,11 +28,12 @@
                         </label>
                         <div class="input-group">
                             <span class="input-group-text bg-light"><i class="fas fa-search"></i></span>
-                            <input list="pacientes_list" name="paciente_nome" class="form-control form-control-lg" placeholder="Digite o nome ou CPF para buscar..." required>
+                            <input list="pacientes_list" id="paciente_nome" name="paciente_nome" class="form-control form-control-lg" placeholder="Digite o nome ou CPF para buscar..." autocomplete="off" required>
                         </div>
+                        <input type="hidden" id="paciente_id" name="paciente">
                         <datalist id="pacientes_list">
                             {% for paciente in pacientes %}
-                                <option value="{{ paciente.admin.first_name }} {{ paciente.admin.last_name }} (CPF: {{ paciente.cpf }})">
+                                <option value="{{ paciente.admin.first_name }} {{ paciente.admin.last_name }} (CPF: {{ paciente.cpf }})" data-id="{{ paciente.id }}">
                             {% endfor %}
                         </datalist>
                         <div class="form-text">O paciente deve estar previamente cadastrado no sistema.</div>
@@ -45,8 +46,8 @@
                             </label>
                             <select name="dentista" class="form-select form-control-lg" required>
                                 <option value="" selected disabled>Selecione o profissional...</option>
-                                {% for d in dentistas %}
-                                    <option value="{{ d.id }}">Dr(a). {{ d.admin.first_name }} {{ d.admin.last_name }}</option>
+                                {% for d in dentistas_options %}
+                                    <option value="{{ d.id }}">Dr(a). {{ d.label }}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -93,4 +94,24 @@
         </div>
     </div>
 </div>
+
+<script>
+    (function () {
+        const input = document.getElementById("paciente_nome");
+        const hidden = document.getElementById("paciente_id");
+        const list = document.getElementById("pacientes_list");
+
+        if (!input || !hidden || !list) return;
+
+        function syncPacienteId() {
+            const value = input.value || "";
+            const option = list.querySelector(`option[value="${CSS.escape(value)}"]`);
+            hidden.value = option ? (option.dataset.id || "") : "";
+        }
+
+        input.addEventListener("change", syncPacienteId);
+        input.addEventListener("input", syncPacienteId);
+        syncPacienteId();
+    })();
+</script>
 {% endblock main_content %}

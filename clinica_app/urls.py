@@ -3,13 +3,11 @@ from . import views
 
 urlpatterns = [
     path('', views.home, name="home"),
-    path('login/', views.loginUser, name="login"),
     path('doLogin/', views.doLogin, name="doLogin"),
     path('logout_user/', views.logout_user, name="logout_user"),
-    
-    # Novas rotas de Dashboard
     path('gerente_home/', views.gerente_home, name="gerente_home"),
     path('dentista_home/', views.dentista_home, name="dentista_home"),
+    path('dentista_finalizar_consulta/<int:consulta_id>/', views.dentista_finalizar_consulta, name="dentista_finalizar_consulta"),
     path('paciente_home/', views.paciente_home, name="paciente_home"),
     path('add_dentista/', views.add_dentista, name="add_dentista"),
     path('add_dentista_save', views.add_dentista_save, name="add_dentista_save"),

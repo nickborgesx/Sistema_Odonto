@@ -6,7 +6,11 @@
     <div class="row mb-4 align-items-center">
         <div class="col-md-6">
             <h2 class="fw-bold mb-0">Painel de Atendimento</h2>
-            <p class="text-muted">Resumo das atividades de hoje: <strong>{{ hoje|date:"d/m/Y" }}</strong></p>
+            {% if proxima_consulta_pendente %}
+                <small class="text-muted">Próxima consulta pendente: <strong>{{ proxima_consulta_pendente.data_consulta|date:"d/m/Y - H:i" }}</strong></small>
+            {% else %}
+                <small class="text-muted">Nenhuma consulta pendente na agenda.</small>
+            {% endif %}
         </div>
         
         <div class="col-md-6">
@@ -23,7 +27,7 @@
         <div class="col-md-4">
             <div class="card h-100 border-0 shadow-sm" style="border-left: 5px solid #007bff !important;">
                 <div class="card-body p-4">
-                    <h6 class="text-uppercase text-muted fw-bold small">Pacientes de Hoje</h6>
+                    <h6 class="text-uppercase text-muted fw-bold small">Pacientes</h6>
                     <h2 class="fw-bold mb-0">{{ total_pacientes }}</h2>
                 </div>
             </div>
@@ -31,7 +35,7 @@
         <div class="col-md-4">
             <div class="card h-100 border-0 shadow-sm" style="border-left: 5px solid #28a745 !important;">
                 <div class="card-body p-4">
-                    <h6 class="text-uppercase text-muted fw-bold small">Consultas do Dia</h6>
+                    <h6 class="text-uppercase text-muted fw-bold small">Consultas</h6>
                     <h2 class="fw-bold mb-0">{{ total_consultas }}</h2>
                 </div>
             </div>
@@ -39,7 +43,7 @@
         <div class="col-md-4">
             <div class="card h-100 border-0 shadow-sm" style="border-left: 5px solid #ffc107 !important;">
                 <div class="card-body p-4">
-                    <h6 class="text-uppercase text-muted fw-bold small">Pendentes Hoje</h6>
+                    <h6 class="text-uppercase text-muted fw-bold small">Pendentes</h6>
                     <h2 class="fw-bold mb-0">{{ consultas_pendentes }}</h2>
                 </div>
             </div>
@@ -60,7 +64,7 @@
                                     <th class="ps-4">Paciente</th>
                                     <th>Horário</th>
                                     <th>Procedimento</th>
-                                    <th class="text-end pe-4">Ação</th>
+                                    <th class="text-end pe-4">Status</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -78,7 +82,10 @@
                                     <td>{{ consulta.procedimento_id.nome }}</td>
                                     <td class="text-end pe-4">
                                         {% if not consulta.status %}
-                                            <span class="badge bg-warning text-dark">Pendente</span>
+                                            <form method="post" action="{% url 'dentista_finalizar_consulta' consulta.id %}" class="d-inline">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-sm btn-success">Finalizar</button>
+                                            </form>
                                         {% else %}
                                             <span class="badge bg-success">Concluída</span>
                                         {% endif %}

@@ -8,16 +8,16 @@ class CustomUser(AbstractUser):
         ('1', 'Gerente'),
         ('2', 'Dentista'),
         ('3', 'Paciente'),
-        ('4', 'Recepcionista'), # Novo tipo
+        ('4', 'Recepcionista'),
     )
     # Garante que o email seja obrigatório e único
     email = models.EmailField(unique=True) 
     user_type = models.CharField(default='1', choices=USER_TYPE_CHOICES, max_length=1)
 
-    # Define o email como o campo de login
-    USERNAME_FIELD = 'email'
-    # Remove o email da lista de campos extras (já que ele é o principal)
-    REQUIRED_FIELDS = ['first_name', 'last_name'] 
+    # Mantemos o fluxo padrão do Django (USERNAME_FIELD = "username").
+    # O login do projeto já usa o e-mail no campo `username` (views.py),
+    # o que evita quebrar `createsuperuser` sem um manager customizado.
+    REQUIRED_FIELDS = ['email', 'first_name', 'last_name']
 
     def __str__(self):
         return self.email
@@ -28,21 +28,23 @@ class Gerente(models.Model):
 
 class Dentista(models.Model):
     admin = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
-    especialidade = models.CharField(max_length=255)
-    cro = models.CharField(max_length=50)
-    address = models.TextField()
+    # Estes campos são preenchidos logo após a criação do usuário (signal + views).
+    # Se forem obrigatórios aqui, o signal falha ao criar o perfil.
+    especialidade = models.CharField(max_length=255, null=True, blank=True)
+    cro = models.CharField(max_length=50, null=True, blank=True)
+    address = models.TextField(null=True, blank=True)
     cpf = models.CharField(max_length=14, null=True, blank=True)
     telefone = models.CharField(max_length=20, null=True, blank=True)
     data_nascimento = models.DateField(null=True, blank=True)
 
 class Paciente(models.Model):
     admin = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
-    genero = models.CharField(max_length=50)
+    genero = models.CharField(max_length=50, null=True, blank=True)
     cpf = models.CharField(max_length=14, null=True, blank=True)
     telefone = models.CharField(max_length=20, null=True, blank=True)
     data_nascimento = models.DateField(null=True, blank=True)
-    address = models.TextField()
-    historico_medico = models.TextField()
+    address = models.TextField(null=True, blank=True)
+    historico_medico = models.TextField(null=True, blank=True)
 
 class Procedimento(models.Model):
     nome = models.CharField(max_length=255)

@@ -25,10 +25,8 @@
                     <div class="col-md-6 mb-3">
                         <label class="form-label fw-bold">Dentista Responsável</label>
                         <select name="dentista" class="form-control" required>
-                            {% for d in dentistas %}
-                                <option value="{{ d.id }}" {% if d.id == consulta.dentista_id.id %}selected{% endif %}>
-                                    Dr(a). {{ d.admin.first_name }} {{ d.admin.last_name }}
-                                </option>
+                            {% for d in dentistas_options %}
+                                <option value="{{ d.id }}" {% if d.id == consulta.dentista_id.id %}selected{% endif %}>Dr(a). {{ d.label }}</option>
                             {% endfor %}
                         </select>
                     </div>

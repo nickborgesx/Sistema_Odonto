@@ -1,37 +1,185 @@
 {% extends 'base.html' %}
 {% load static %}
-
 {% block main_content %}
-<div class="container d-flex flex-column align-items-center justify-content-center" style="min-height: 75vh;">
-    
-    <div class="text-center mb-4">
-        <img src="{% static 'nlogo.png' %}" class="img-fluid" alt="OdontoGestão" style="max-height: 280px; opacity: 0.9;">
-    </div>
-
-    <div class="text-center mb-5">
-        <h1 class="fw-light text-secondary">Sistema <span class="fw-bold text-dark">OdontoGestão</span></h1>
-        <p class="lead text-muted mx-auto" style="max-width: 500px;">
-            Plataforma interna para gestão de pacientes e agendamentos clínicos.
-        </p>
-    </div>
-
-    <div class="text-center">
-        {% if not user.is_authenticated %}
-            <a href="{% url 'login' %}" class="btn btn-primary btn-lg px-5 py-3 rounded-pill shadow-sm" style="font-weight: 500; letter-spacing: 0.5px;">
-                Acessar Sistema
-            </a>
-        {% else %}
-            <div class="alert alert-light border py-3 px-5 rounded-pill">
-                <span class="text-muted">Você está conectado como <strong>{{ user.first_name }}</strong></span>
+<div class="main-wrapper d-flex align-items-center justify-content-center">
+    <div class="login-card d-flex overflow-hidden shadow-2xl">
+        
+        <div class="brand-side d-none d-lg-flex flex-column justify-content-center align-items-center p-5 text-white">
+            <div class="logo-static-container mb-4">
+                <img src="{% static 'nlogo.png' %}" alt="Logo OdontoGestão" class="img-fluid main-logo">
             </div>
-        {% endif %}
-    </div>
+            
+            <div class="text-center">
+                <h1 class="fw-black text-white tracking-tighter mb-2">OdontoGestão</h1>
+                <p class="fw-normal text-white">Sua clínica em boas mãos.</p>
+            </div>
+        </div>
 
-    <div class="mt-5 pt-4 opacity-50">
-        <small class="text-uppercase text-muted" style="font-size: 0.7rem; letter-spacing: 2px;">
-            Ambiente Local Restrito
-        </small>
-    </div>
+        <div class="form-side bg-white p-5 d-flex flex-column justify-content-center">
+            <div class="form-content">
+                <div class="mb-5 text-center text-lg-start">
+                    <h2 class="fw-bold text-dark">Acessar Sistema</h2>
+                    <p class="text-muted">Insira seus dados para entrar no painel.</p>
+                </div>
 
+                <form action="{% url 'doLogin' %}" method="post">
+                    {% csrf_token %}
+                    
+                    <div class="input-group-custom mb-4">
+                        <label class="form-label-custom">E-mail</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-envelope icon-input"></i>
+                            <input type="email" name="email" class="form-control-custom" 
+                                   placeholder="seuemail@clinica.com" required>
+                        </div>
+                    </div>
+
+                    <div class="input-group-custom mb-4">
+                        <label class="form-label-custom">Senha</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-lock icon-input"></i>
+                            <input type="password" name="password" class="form-control-custom" 
+                                   placeholder="••••••••" required>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-primary-custom w-100 py-3 mb-4">
+                        Entrar no Sistema
+                    </button>
+                </form>
+
+                <div class="footer-info text-center mt-4">
+                    <span class="text-muted small fw-bold">© 2026 OdontoGestão</span>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<style>
+    :root {
+        /* Fundo alinhado ao azul principal do layout (base.html) */
+        --bg-gradient-start: #eef6ff;
+        --bg-gradient-end: #dbeafe;
+    }
+
+    /* Fundo com profundidade, sem brigar com o restante do app */
+    body { 
+        background:
+          radial-gradient(900px 600px at 15% 15%, rgba(0, 123, 255, 0.12) 0%, rgba(0, 123, 255, 0) 60%),
+          radial-gradient(900px 600px at 85% 80%, rgba(0, 86, 179, 0.10) 0%, rgba(0, 86, 179, 0) 55%),
+          linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+        font-family: 'Inter', sans-serif; 
+        min-height: 100vh;
+        margin: 0;
+    }
+
+    .main-wrapper { height: 100vh; width: 100vw; }
+
+    .login-card {
+        width: 1000px;
+        min-height: 600px;
+        border-radius: 24px;
+        background: rgba(255, 255, 255, 0.92);
+        border: 1px solid rgba(255, 255, 255, 0.7);
+        box-shadow: 0 35px 70px -30px rgba(0, 0, 0, 0.25);
+        backdrop-filter: blur(10px);
+        animation: pop-in 340ms ease-out both;
+    }
+
+    .brand-side {
+        width: 40%;
+        background: linear-gradient(135deg, var(--brand-blue) 0%, var(--brand-blue-dark) 100%);
+        position: relative;
+    }
+
+    .brand-side::before{
+        content:"";
+        position:absolute;
+        inset:0;
+        background:
+          radial-gradient(500px 300px at 30% 20%, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0) 65%),
+          radial-gradient(420px 260px at 70% 80%, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0) 60%);
+        pointer-events:none;
+    }
+
+    .main-logo { width: 120px; filter: brightness(0) invert(1); }
+    .fw-black { font-weight: 800; letter-spacing: -1px; }
+
+    .form-side { width: 60%; }
+
+    .input-group-custom .form-label-custom {
+        display: block;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #475569;
+        margin-bottom: 6px;
+    }
+
+    .input-wrapper { position: relative; }
+
+    .icon-input {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #94a3b8;
+        font-size: 0.85rem;
+    }
+
+    /* ALINHAMENTO DO TEXTO: Padding reduzido para encostar mais no ícone */
+    .form-control-custom {
+        width: 100%;
+        padding: 12px 12px 12px 34px; 
+        border: 1.5px solid #e2e8f0;
+        border-radius: 10px;
+        transition: all 0.2s;
+        font-size: 0.95rem;
+    }
+
+    .form-control-custom:focus {
+        border-color: var(--brand-blue);
+        box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.1);
+        outline: none;
+    }
+
+    .btn-primary-custom {
+        background: linear-gradient(135deg, var(--brand-blue) 0%, var(--brand-blue-dark) 100%);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+        box-shadow: 0 14px 30px -18px rgba(0, 86, 179, 0.75);
+    }
+
+    .btn-primary-custom:hover {
+        filter: brightness(1.02);
+        transform: translateY(-1px);
+        box-shadow: 0 18px 38px -20px rgba(0, 86, 179, 0.85);
+    }
+
+    .btn-primary-custom:active {
+        transform: translateY(0px);
+    }
+
+    @keyframes pop-in{
+        from { transform: translateY(8px); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+
+    .alert-error {
+        background: #fef2f2;
+        color: #991b1b;
+        padding: 12px;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        border: 1px solid #fee2e2;
+    }
+
+    @media (max-width: 991px) {
+        .login-card { width: 95%; height: auto; margin: 15px; }
+        .form-side { width: 100%; padding: 40px !important; }
+    }
+</style>
 {% endblock main_content %}

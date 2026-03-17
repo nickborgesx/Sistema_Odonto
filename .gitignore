@@ -1,0 +1,25 @@
+__pycache__/
+*.py[cod]
+*.pyd
+.Python
+
+# Virtualenvs
+.venv/
+venv/
+env/
+
+# Django / local dev
+db.sqlite3
+*.log
+staticfiles/
+media/
+
+# Tooling caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.cache/
+
+# OS/editor
+.DS_Store
+Thumbs.db

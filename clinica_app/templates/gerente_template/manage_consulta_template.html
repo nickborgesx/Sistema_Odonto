@@ -3,7 +3,7 @@
 <div class="container">
     <div class="card shadow-sm border-0">
         <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-            <h4 class="mb-0 fw-bold">📅 Todas as Consultas</h4>
+            <h4 class="mb-0 fw-bold"> Todas as Consultas</h4>
             <a href="{% url 'add_consulta' %}" class="btn btn-primary btn-sm">+ Novo Agendamento</a>
         </div>
         <div class="card-body p-0">
@@ -27,7 +27,18 @@
                                 <small class="text-muted">{{ c.data_consulta|date:"H:i" }}</small>
                             </td>
                             <td>{{ c.paciente_id.admin.first_name }} {{ c.paciente_id.admin.last_name }}</td>
-                            <td>Dr(a). {{ c.dentista_id.admin.last_name }}</td>
+                            <td>
+                                {% with fn=c.dentista_id.admin.first_name ln=c.dentista_id.admin.last_name em=c.dentista_id.admin.email %}
+                                    Dr(a).
+                                    {% if fn or ln %}
+                                        {{ fn }} {{ ln }}
+                                    {% elif em %}
+                                        {{ em }}
+                                    {% else %}
+                                        Sem nome
+                                    {% endif %}
+                                {% endwith %}
+                            </td>
                             <td><span class="badge bg-info text-dark">{{ c.procedimento_id.nome }}</span></td>
                             <td>
                                 {% if c.status %}

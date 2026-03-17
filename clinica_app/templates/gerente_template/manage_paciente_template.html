@@ -47,7 +47,7 @@
                             </td>
                             <td>
                                 <span class="badge bg-light text-dark border px-3 py-2">
-                                    {{ paciente.genero }}
+                                    {{ paciente.genero|default:"—" }}
                                 </span>
                                 <div class="text-muted small mt-1">
                                     {% if paciente.data_nascimento %}
