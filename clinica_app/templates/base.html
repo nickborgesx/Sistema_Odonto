@@ -12,45 +12,129 @@
     <link rel="icon" type="image/x-icon" href="{% static 'nlogo-_cópia_.ico' %}">
     <style>
         :root{
-            --brand-blue: #007bff;
-            --brand-blue-dark: #0056b3;
-            --brand-blue-soft: #f0f7ff;
+            --accent: #2563eb;         /* Azul Principal */
+            --accent-dark: #1d4ed8;    /* Azul Escuro */
+            --accent-soft: #eff6ff;    /* Azul Suave */
+
+            --bg: #f3f4f6;            
+            --surface: #ffffff;
+            --text: #111827;          
+            --muted: #6b7280;          
+            --border: #e5e7eb;        
+            --shadow: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.10);
+            --radius: 12px;
         }
-        body { background-color: #f8f9fa; font-family: 'Inter', sans-serif; color: #2c3e50; overflow-x: hidden; }
+
+        body { background-color: var(--bg); font-family: 'Inter', sans-serif; color: var(--text); overflow-x: hidden; }
         h1, h2, h3, h4, h5, h6, .navbar-brand, .fw-bold { font-family: 'Poppins', sans-serif; font-weight: 600; letter-spacing: -0.01em; }
-        .navbar { background: linear-gradient(135deg, var(--brand-blue) 0%, var(--brand-blue-dark) 100%); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); padding: 8px 0; z-index: 1030; }
-        .navbar-brand { color: white !important; font-size: 1.4rem; text-decoration: none; }
-        .nav-link-custom { font-family: 'Poppins', sans-serif; font-weight: 500; padding: 7px 18px; border-radius: 8px; background: rgba(255, 255, 255, 0.12); color: white !important; margin-left: 8px; border: 1px solid rgba(255, 255, 255, 0.2); backdrop-filter: blur(5px); text-decoration: none; display: inline-block; font-size: 0.9rem; }
-        .main-wrapper { display: flex; min-height: calc(100vh - 60px); }
-        #sidebar { width: 260px; background: white; border-right: 1px solid #e9ecef; transition: all 0.3s; }
-        .sidebar-link { display: block; padding: 15px 25px; color: #495057; text-decoration: none; font-family: 'Poppins', sans-serif; font-weight: 500; border-bottom: 1px solid #f8f9fa; transition: 0.3s; position: relative; }
-        .sidebar-link:hover { background: var(--brand-blue-soft); color: var(--brand-blue); padding-left: 30px; }
-        .sidebar-link.active { background: var(--brand-blue-soft); color: var(--brand-blue); padding-left: 30px; }
-        .sidebar-link.active::before {
-            content: "";
-            position: absolute;
-            left: 0;
-            top: 8px;
-            bottom: 8px;
-            width: 4px;
-            background: var(--brand-blue);
-            border-radius: 0 6px 6px 0;
+
+        /* NAVBAR AJUSTADA PARA AZUL */
+        .navbar { 
+            background: var(--accent); 
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1); 
+            box-shadow: var(--shadow); 
+            padding: 10px 0; 
+            z-index: 1030; 
         }
-        #content-area { flex: 1; padding: 20px; }
+
+        .navbar-brand { 
+            color: #ffffff !important; 
+            font-size: 1.25rem; 
+            text-decoration: none; 
+            display: flex;
+            align-items: center;
+        }
+
+        /* Torna o ícone do dente branco para contrastar com o azul */
+        .navbar-brand img {
+            filter: brightness(0) invert(1);
+        }
+
+        .user-welcome { 
+            color: rgba(255, 255, 255, 0.9); 
+            margin-right: 15px; 
+        }
+
+        .user-name { 
+            color: #ffffff; 
+            font-weight: 700; 
+        }
+
+        /* BOTÃO SAIR COM EFEITO TRANSLÚCIDO */
+        .nav-link-custom { 
+            font-family: 'Poppins', sans-serif; 
+            font-weight: 700; 
+            padding: 7px 18px; 
+            border-radius: 10px; 
+            background: rgba(255, 255, 255, 0.15); 
+            color: #ffffff !important; 
+            margin-left: 10px; 
+            border: 1px solid rgba(255, 255, 255, 0.3); 
+            text-decoration: none; 
+            display: inline-block; 
+            font-size: 0.85rem; 
+            transition: all 0.2s ease;
+        }
+
+        .nav-link-custom:hover { 
+            background: rgba(255, 255, 255, 0.25); 
+            border-color: #ffffff; 
+            transform: translateY(-1px);
+        }
+
+        /* SIDEBAR E CONTEÚDO */
+        .main-wrapper { display: flex; min-height: calc(100vh - 64px); }
+        
+        #sidebar { 
+            width: 260px; 
+            background: var(--surface); 
+            border-right: 1px solid var(--border); 
+            transition: all 0.2s; 
+        }
+
+        .sidebar-link { 
+            display: block; 
+            margin: 6px 10px; 
+            padding: 12px 16px; 
+            color: #374151; 
+            text-decoration: none; 
+            font-family: 'Poppins', sans-serif; 
+            font-weight: 600; 
+            transition: 0.15s; 
+            position: relative; 
+            border-radius: 12px; 
+        }
+
+        .sidebar-link:hover { background: #f3f4f6; color: var(--text); }
+        
+        .sidebar-link.active { 
+            background: var(--accent); 
+            color: #ffffff; 
+        }
+
+        .sidebar-link.active img { filter: brightness(0) invert(1); }
+
+        #content-area { flex: 1; padding: 24px; }
+
+        /* COMPONENTES GERAIS */
+        .card { border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); }
+        .btn-primary { background-color: var(--accent); border-color: var(--accent); }
+        .btn-primary:hover { background-color: var(--accent-dark); border-color: var(--accent-dark); }
     </style>
 </head>
 <body>
-    {# A Navbar agora só aparece se o usuário estiver logado #}
     {% if user.is_authenticated %}
     <nav class="navbar navbar-expand-lg">
         <div class="container-fluid">
-            <span class="navbar-brand d-flex align-items-center">
+            <a class="navbar-brand" href="#">
                 <img src="{% static 'denteb.png' %}" alt="Logo" width="30" height="30" class="me-2">
                 OdontoGestão
-            </span>
+            </a>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto align-items-center">
-                    <span class="user-welcome" style="color: white; margin-right: 15px;">Olá, {{ user.first_name }}!</span>
+                    <li class="nav-item">
+                        <span class="user-welcome">Olá, <span class="user-name">{{ user.first_name }}</span>!</span>
+                    </li>
                     <li class="nav-item">
                         <a class="nav-link-custom" href="{% url 'logout_user' %}">Sair</a>
                     </li>
@@ -73,6 +157,7 @@
             </div>
             <nav class="mt-2">
                 {% with url_name=request.resolver_match.url_name %}
+                
                 {% if user.user_type == '2' %}
                     <a href="{% url 'dentista_home' %}" class="sidebar-link {% if url_name == 'dentista_home' %}active{% endif %}">
                         <img src="{% static 'computador.png' %}" width="20" class="me-2"> Meu Painel
@@ -80,7 +165,7 @@
                     <a href="{% url 'dentista_manage_paciente' %}" class="sidebar-link {% if url_name == 'dentista_manage_paciente' or url_name == 'view_paciente' %}active{% endif %}">
                         <img src="{% static 'utilizador.png' %}" width="20" class="me-2"> Pacientes
                     </a>
-                    <a href="{% url 'add_consulta' %}" class="sidebar-link {% if url_name == 'add_consulta' or url_name == 'add_consulta_save' %}active{% endif %}">
+                    <a href="{% url 'add_consulta' %}" class="sidebar-link {% if url_name == 'add_consulta' %}active{% endif %}">
                         <img src="{% static 'adicionar.png' %}" width="20" class="me-2"> Agendar Consulta
                     </a>
 
@@ -88,16 +173,16 @@
                     <a href="{% url 'gerente_home' %}" class="sidebar-link {% if url_name == 'gerente_home' %}active{% endif %}">
                         <img src="{% static 'lista.png' %}" width="20" class="me-2"> Dashboard
                     </a>
-                    <a href="{% url 'manage_dentista' %}" class="sidebar-link {% if url_name == 'manage_dentista' or url_name == 'add_dentista' or url_name == 'add_dentista_save' or url_name == 'edit_dentista' or url_name == 'edit_dentista_save' %}active{% endif %}">
+                    <a href="{% url 'manage_dentista' %}" class="sidebar-link {% if 'dentista' in url_name %}active{% endif %}">
                         <img src="{% static 'dentista.png' %}" width="20" class="me-2"> Médicos
                     </a>
-                    <a href="{% url 'manage_paciente' %}" class="sidebar-link {% if url_name == 'manage_paciente' or url_name == 'add_paciente' or url_name == 'add_paciente_save' or url_name == 'edit_paciente' or url_name == 'edit_paciente_save' %}active{% endif %}">
+                    <a href="{% url 'manage_paciente' %}" class="sidebar-link {% if 'paciente' in url_name %}active{% endif %}">
                         <img src="{% static 'utilizador.png' %}" width="20" class="me-2"> Pacientes
                     </a>
-                    <a href="{% url 'manage_recepcionista' %}" class="sidebar-link {% if url_name == 'manage_recepcionista' or url_name == 'add_recepcionista' or url_name == 'add_recepcionista_save' or url_name == 'edit_recepcionista' or url_name == 'edit_recepcionista_save' %}active{% endif %}">
+                    <a href="{% url 'manage_recepcionista' %}" class="sidebar-link {% if 'recepcionista' in url_name %}active{% endif %}">
                         <img src="{% static 'recepcionista.png' %}" width="20" class="me-2"> Recepcionistas
                     </a>
-                    <a href="{% url 'manage_consulta' %}" class="sidebar-link {% if url_name == 'manage_consulta' or url_name == 'add_consulta' or url_name == 'add_consulta_save' or url_name == 'edit_consulta' or url_name == 'edit_consulta_save' %}active{% endif %}">
+                    <a href="{% url 'manage_consulta' %}" class="sidebar-link {% if 'consulta' in url_name %}active{% endif %}">
                         <img src="{% static 'calendario.png' %}" width="20" class="me-2"> Agenda Geral
                     </a>
 
@@ -105,16 +190,17 @@
                     <a href="{% url 'recepcionista_home' %}" class="sidebar-link {% if url_name == 'recepcionista_home' %}active{% endif %}">
                         <img src="{% static 'lista.png' %}" width="20" class="me-2"> Painel Recepção
                     </a>
-                    <a href="{% url 'manage_paciente' %}" class="sidebar-link {% if url_name == 'manage_paciente' or url_name == 'add_paciente' or url_name == 'add_paciente_save' or url_name == 'edit_paciente' or url_name == 'edit_paciente_save' %}active{% endif %}">
+                    <a href="{% url 'manage_paciente' %}" class="sidebar-link {% if 'paciente' in url_name %}active{% endif %}">
                         <img src="{% static 'utilizador.png' %}" width="20" class="me-2"> Pacientes
                     </a>
-                    <a href="{% url 'manage_consulta' %}" class="sidebar-link {% if url_name == 'manage_consulta' or url_name == 'add_consulta' or url_name == 'add_consulta_save' or url_name == 'edit_consulta' or url_name == 'edit_consulta_save' %}active{% endif %}">
+                    <a href="{% url 'manage_consulta' %}" class="sidebar-link {% if url_name == 'manage_consulta' %}active{% endif %}">
                         <img src="{% static 'calendario.png' %}" width="20" class="me-2"> Agenda
                     </a>
-                    <a href="{% url 'add_consulta' %}" class="sidebar-link {% if url_name == 'add_consulta' or url_name == 'add_consulta_save' %}active{% endif %}">
+                    <a href="{% url 'add_consulta' %}" class="sidebar-link {% if url_name == 'add_consulta' %}active{% endif %}">
                         <img src="{% static 'adicionar.png' %}" width="20" class="me-2"> Novo Agendamento
                     </a>
                 {% endif %}
+                
                 {% endwith %}
             </nav>
         </aside>

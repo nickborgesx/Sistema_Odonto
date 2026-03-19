@@ -2,96 +2,235 @@
 {% load static %}
 
 {% block main_content %}
-<div class="container-fluid">
-    <div class="row mb-4">
-        <div class="col-12 text-center">
-            <h2 class="fw-bold mb-0">Agendar Consulta</h2>
-            <p class="text-muted">Preencha os dados abaixo para reservar um horário na agenda.</p>
-        </div>
+<style>
+    :root {
+        --text-main: #0f172a;    /* Azul marinho quase preto (Contraste Máximo) */
+        --text-secondary: #334155; /* Cinza escuro azulado para labels e textos de apoio */
+        --accent: #2563eb;       /* Azul da marca */
+        --accent-soft: #eff6ff;
+        --border-input: #cbd5e1; /* Borda mais visível para os campos */
+    }
+
+    .page-container {
+        animation: fadeIn 0.5s ease-in-out;
+        max-width: 850px;
+        margin: 0 auto;
+    }
+
+    /* Títulos e Textos Principais */
+    .title-main {
+        color: var(--text-main) !important;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+    }
+
+    .subtitle-main {
+        color: var(--text-secondary) !important;
+        font-weight: 500;
+        font-size: 1.1rem;
+    }
+
+    /* Card do Formulário */
+    .form-card {
+        background: #ffffff;
+        border-radius: 20px;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+    }
+
+    .form-header {
+        background: #f8fafc;
+        padding: 24px 35px;
+        border-bottom: 2px solid #f1f5f9;
+    }
+
+    .form-body {
+        padding: 35px;
+    }
+
+    /* Labels de Alto Contraste */
+    .form-label-saas {
+        font-size: 0.85rem;
+        font-weight: 800;
+        color: var(--text-main); /* Preto Grafite */
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+    }
+
+    .form-label-saas i {
+        font-size: 1rem;
+        color: var(--accent);
+        margin-right: 8px;
+    }
+
+    /* Inputs Reforçados */
+    .form-control-saas {
+        border: 2px solid var(--border-input);
+        border-radius: 12px;
+        padding: 14px 18px;
+        font-size: 1rem;
+        color: var(--text-main);
+        font-weight: 500;
+        transition: all 0.2s ease;
+        background-color: #ffffff;
+    }
+
+    .form-control-saas:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+        outline: none;
+    }
+
+    .form-control-saas::placeholder {
+        color: #94a3b8; /* Cinza médio para não confundir com o valor preenchido */
+    }
+
+    /* Select Customizado */
+    .form-select-saas {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%230f172a' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        background-size: 16px 12px;
+    }
+
+    /* Botão Principal */
+    .btn-save {
+        background-color: var(--accent);
+        color: #ffffff;
+        border: none;
+        padding: 16px 35px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+    }
+
+    .btn-save:hover {
+        background-color: #1d4ed8;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(37, 99, 235, 0.35);
+        color: #ffffff;
+    }
+
+    .btn-cancel {
+        color: var(--text-secondary);
+        background-color: #f1f5f9;
+        border: none;
+        padding: 16px 25px;
+        border-radius: 12px;
+        font-weight: 700;
+        transition: all 0.2s;
+    }
+
+    .btn-cancel:hover {
+        background-color: #e2e8f0;
+        color: var(--text-main);
+    }
+
+    /* Banner Informativo */
+    .info-banner {
+        background-color: #f0f9ff;
+        border: 1px solid #bae6fd;
+        border-radius: 14px;
+        padding: 20px;
+        color: #0369a1; /* Azul forte para leitura */
+        font-size: 0.95rem;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<div class="container-fluid py-5 page-container">
+    
+    <div class="text-center mb-5">
+        <h1 class="title-main mb-2" style="font-size: 2.5rem;">Agendar Consulta</h1>
+        <p class="subtitle-main">Gerenciamento rápido de horários para a clínica.</p>
     </div>
 
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-primary py-3 text-white shadow-sm">
-                    <h5 class="mb-0 fw-bold">
-                        <i class="fas fa-calendar-plus me-2"></i> Detalhes do Agendamento
-                    </h5>
-                </div>
-
-                <form action="{% url 'add_consulta_save' %}" method="post" class="card-body p-4">
-                    {% csrf_token %}
-
-                    <div class="mb-4">
-                        <label class="form-label fw-bold text-secondary">
-                            <i class="fas fa-user-injured me-1"></i> Paciente
-                        </label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light"><i class="fas fa-search"></i></span>
-                            <input list="pacientes_list" id="paciente_nome" name="paciente_nome" class="form-control form-control-lg" placeholder="Digite o nome ou CPF para buscar..." autocomplete="off" required>
-                        </div>
-                        <input type="hidden" id="paciente_id" name="paciente">
-                        <datalist id="pacientes_list">
-                            {% for paciente in pacientes %}
-                                <option value="{{ paciente.admin.first_name }} {{ paciente.admin.last_name }} (CPF: {{ paciente.cpf }})" data-id="{{ paciente.id }}">
-                            {% endfor %}
-                        </datalist>
-                        <div class="form-text">O paciente deve estar previamente cadastrado no sistema.</div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6 mb-4">
-                            <label class="form-label fw-bold text-secondary">
-                                <i class="fas fa-user-md me-1"></i> Dentista Responsável
-                            </label>
-                            <select name="dentista" class="form-select form-control-lg" required>
-                                <option value="" selected disabled>Selecione o profissional...</option>
-                                {% for d in dentistas_options %}
-                                    <option value="{{ d.id }}">Dr(a). {{ d.label }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-
-                        <div class="col-md-6 mb-4">
-                            <label class="form-label fw-bold text-secondary">
-                                <i class="fas fa-tooth me-1"></i> Procedimento
-                            </label>
-                            <select name="procedimento" class="form-select form-control-lg" required>
-                                <option value="" selected disabled>Selecione o serviço...</option>
-                                {% for proc in procedimentos %}
-                                    <option value="{{ proc.id }}">{{ proc.nome }} — R$ {{ proc.valor }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-12 mb-4">
-                            <label class="form-label fw-bold text-secondary">
-                                <i class="fas fa-clock me-1"></i> Data e Hora da Consulta
-                            </label>
-                            <input type="datetime-local" name="data_consulta" class="form-control form-control-lg" required>
-                        </div>
-                    </div>
-
-                    <div class="d-grid gap-2 d-md-flex justify-content-md-between align-items-center border-top pt-4 mt-2">
-                        <a href="{% url 'manage_consulta' %}" class="btn btn-light px-4 border">
-                            Cancelar
-                        </a>
-                        <button type="submit" class="btn btn-primary px-5 py-2 fw-bold shadow-sm">
-                            <i class="fas fa-check-circle me-1"></i> Finalizar Agendamento
-                        </button>
-                    </div>
-                </form>
+    <div class="form-card">
+        <div class="form-header d-flex align-items-center">
+            <div class="bg-primary text-white p-2 rounded-3 me-3" style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-calendar-alt fs-4"></i>
             </div>
-            
-            <div class="alert alert-info border-0 shadow-sm mt-4 d-flex align-items-center" role="alert">
-                <i class="fas fa-info-circle fs-4 me-3"></i>
-                <div>
-                    Certifique-se de confirmar o horário com o paciente via WhatsApp após o agendamento.
-                </div>
+            <div>
+                <h5 class="mb-0 fw-bold text-dark">Informações do Agendamento</h5>
+                <small class="text-muted fw-bold">Preencha todos os campos obrigatórios</small>
             </div>
         </div>
+
+        <form action="{% url 'add_consulta_save' %}" method="post" class="form-body">
+            {% csrf_token %}
+
+            <div class="mb-4">
+                <label class="form-label-saas"><i class="fas fa-user-circle"></i> Paciente Responsável</label>
+                <input list="pacientes_list" id="paciente_nome" name="paciente_nome" 
+                       class="form-control form-control-saas w-100" 
+                       placeholder="Digite o nome ou CPF para pesquisar..." autocomplete="off" required>
+                
+                <input type="hidden" id="paciente_id" name="paciente">
+                <datalist id="pacientes_list">
+                    {% for paciente in pacientes %}
+                        <option value="{{ paciente.admin.first_name }} {{ paciente.admin.last_name }} (CPF: {{ paciente.cpf }})" data-id="{{ paciente.id }}">
+                    {% endfor %}
+                </datalist>
+                <div class="form-text mt-2" style="color: #64748b; font-weight: 500;">
+                    O paciente deve estar cadastrado para aparecer na busca.
+                </div>
+            </div>
+
+            <div class="row g-4 mb-4">
+                <div class="col-md-6">
+                    <label class="form-label-saas"><i class="fas fa-user-md"></i> Profissional</label>
+                    <select name="dentista" class="form-control form-control-saas form-select-saas" required>
+                        <option value="" selected disabled>Selecione o Dentista</option>
+                        {% for d in dentistas_options %}
+                            <option value="{{ d.id }}">Dr(a). {{ d.label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label-saas"><i class="fas fa-tooth"></i> Procedimento</label>
+                    <select name="procedimento" class="form-control form-control-saas form-select-saas" required>
+                        <option value="" selected disabled>Tipo de atendimento</option>
+                        {% for proc in procedimentos %}
+                            <option value="{{ proc.id }}">{{ proc.nome }} — R$ {{ proc.valor }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="mb-5">
+                <label class="form-label-saas"><i class="fas fa-clock"></i> Data e Horário Escolhido</label>
+                <input type="datetime-local" name="data_consulta" class="form-control form-control-saas" required>
+            </div>
+
+            <div class="info-banner d-flex align-items-center mb-5 shadow-sm">
+                <i class="fab fa-whatsapp fs-3 me-3"></i>
+                <div>
+                    <strong class="d-block mb-1">Confirmação de Agendamento</strong>
+                    O sistema registrará o horário. Lembre-se de notificar o paciente via WhatsApp para reduzir faltas.
+                </div>
+            </div>
+
+            <div class="d-flex flex-column flex-md-row justify-content-between gap-3 border-top pt-4">
+                <a href="{% url 'manage_consulta' %}" class="btn btn-cancel">
+                    Cancelar Agendamento
+                </a>
+                <button type="submit" class="btn btn-save">
+                    <i class="fas fa-check-circle me-2"></i> Confirmar e Salvar
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 

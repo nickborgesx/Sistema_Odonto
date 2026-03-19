@@ -2,38 +2,180 @@
 {% load static %}
 
 {% block main_content %}
-<div class="container-fluid">
-    <div class="card shadow-sm border-0">
-        <div class="card-header bg-warning py-3">
-            <h3 class="card-title text-dark mb-0 fw-bold">
-                <i class="fas fa-user-edit me-2"></i>Editar Paciente: {{ user.first_name }} {{ user.last_name }}
-            </h3>
-        </div>
-        
-        <form action="{% url 'edit_paciente_save' %}" method="post" class="card-body p-4">
-            {% csrf_token %}
-            <input type="hidden" name="paciente_id" value="{{ user.id }}">
+<style>
+    :root {
+        --text-main: #0f172a;    /* Preto Grafite para leitura perfeita */
+        --text-secondary: #334155; /* Cinza escuro para textos de apoio */
+        --accent: #2563eb;       /* Azul OdontoGestão */
+        --border-saas: #cbd5e1;  /* Borda reforçada para inputs */
+    }
 
-            <h5 class="text-secondary border-bottom pb-2 mb-3">Informações Pessoais</h5>
-            <div class="row">
-                <div class="col-md-12 mb-3">
-                    <label class="fw-bold">Nome Completo</label>
-                    <input type="text" name="nome_completo" class="form-control" value="{{ user.first_name }}" required>
+    .page-container {
+        animation: fadeIn 0.5s ease-in-out;
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+
+    /* Títulos e Header */
+    .title-main {
+        color: var(--text-main) !important;
+        font-weight: 800;
+        letter-spacing: -1px;
+    }
+
+    .form-card {
+        background: #ffffff;
+        border-radius: 20px;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+    }
+
+    .card-header-saas {
+        background: #f8fafc;
+        padding: 24px 35px;
+        border-bottom: 2px solid #f1f5f9;
+    }
+
+    /* Divisores de Seção */
+    .section-divider {
+        color: var(--text-main);
+        font-size: 0.9rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        border-bottom: 2px solid #e2e8f0;
+        padding-bottom: 8px;
+        margin-bottom: 25px;
+        margin-top: 35px;
+        display: flex;
+        align-items: center;
+    }
+
+    .section-divider i {
+        margin-right: 10px;
+        color: var(--accent);
+    }
+
+    /* Labels e Inputs de Alto Contraste */
+    .label-saas {
+        font-size: 0.85rem;
+        font-weight: 800;
+        color: var(--text-main);
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    .form-control-saas {
+        border: 2px solid var(--border-saas);
+        border-radius: 12px;
+        padding: 12px 18px;
+        font-size: 1rem;
+        color: var(--text-main);
+        font-weight: 600;
+        background-color: #ffffff;
+        transition: all 0.2s ease;
+    }
+
+    .form-control-saas:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        outline: none;
+    }
+
+    .form-select-saas {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%230f172a' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        background-size: 16px 12px;
+    }
+
+    /* Botões */
+    .btn-save-saas {
+        background-color: var(--accent);
+        color: white;
+        border: none;
+        padding: 14px 40px;
+        border-radius: 12px;
+        font-weight: 700;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+
+    .btn-save-saas:hover {
+        background-color: #1d4ed8;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+        color: white;
+    }
+
+    .btn-cancel-saas {
+        background-color: #f1f5f9;
+        color: var(--text-secondary);
+        border: none;
+        padding: 14px 25px;
+        border-radius: 12px;
+        font-weight: 700;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .btn-cancel-saas:hover {
+        background-color: #e2e8f0;
+        color: var(--text-main);
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(15px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<div class="container-fluid py-5 page-container">
+    
+    <div class="text-center text-lg-start mb-5">
+        <h1 class="title-main mb-2" style="font-size: 2.6rem;">Editar Paciente</h1>
+        <p class="fs-5" style="color: var(--text-secondary); font-weight: 500;">
+            Atualizando prontuário de: <span class="text-primary fw-bold">{{ usuario_edit.first_name }} {{ usuario_edit.last_name }}</span>
+        </p>
+    </div>
+
+    <div class="form-card">
+        <div class="card-header-saas d-flex align-items-center">
+            <div class="bg-primary text-white p-2 rounded-3 me-3" style="width: 42px; height: 42px; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-user-edit fs-4"></i>
+            </div>
+            <h5 class="mb-0 fw-bold text-dark">Formulário de Cadastro do Paciente</h5>
+        </div>
+
+        <form action="{% url 'edit_paciente_save' %}" method="post" class="card-body p-5">
+            {% csrf_token %}
+            <input type="hidden" name="paciente_id" value="{{ usuario_edit.id }}">
+
+            <div class="section-divider mt-0">
+                <i class="fas fa-id-card"></i> Identificação Pessoal
+            </div>
+            
+            <div class="row g-4 mb-4">
+                <div class="col-md-12">
+                    <label class="label-saas">Nome Completo *</label>
+                    <input type="text" name="nome_completo" class="form-control form-control-saas" value="{{ usuario_edit.first_name }}" required>
                 </div>
             </div>
 
-            <div class="row">
-                <div class="col-md-4 mb-3">
-                    <label class="fw-bold">CPF</label>
-                    <input type="text" name="cpf" class="form-control cpf" value="{{ paciente.cpf|default:'' }}" placeholder="529.982.247-25">
+            <div class="row g-4 mb-4">
+                <div class="col-md-4">
+                    <label class="label-saas">CPF</label>
+                    <input type="text" name="cpf" class="form-control form-control-saas cpf" value="{{ paciente.cpf|default:'' }}" placeholder="000.000.000-00">
                 </div>
-                <div class="col-md-4 mb-3">
-                    <label class="fw-bold">Data de Nascimento</label>
-                    <input type="date" name="data_nascimento" class="form-control" value="{{ paciente.data_nascimento|date:'Y-m-d' }}">
+                <div class="col-md-4">
+                    <label class="label-saas">Data de Nascimento</label>
+                    <input type="date" name="data_nascimento" class="form-control form-control-saas" value="{{ paciente.data_nascimento|date:'Y-m-d' }}">
                 </div>
-                <div class="col-md-4 mb-3">
-                    <label class="fw-bold">Gênero</label>
-                    <select name="genero" class="form-control">
+                <div class="col-md-4">
+                    <label class="label-saas">Gênero</label>
+                    <select name="genero" class="form-control form-control-saas form-select-saas">
                         <option value="Masculino" {% if paciente.genero == "Masculino" %}selected{% endif %}>Masculino</option>
                         <option value="Feminino" {% if paciente.genero == "Feminino" %}selected{% endif %}>Feminino</option>
                         <option value="Outro" {% if paciente.genero == "Outro" %}selected{% endif %}>Outro</option>
@@ -41,37 +183,44 @@
                 </div>
             </div>
 
-            <h5 class="text-secondary border-bottom pb-2 mb-3 mt-4">Contato e Localização</h5>
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label class="fw-bold">E-mail (Login)</label>
-                    <input type="email" name="email" class="form-control" value="{{ user.email }}" required>
+            <div class="section-divider">
+                <i class="fas fa-map-marker-alt"></i> Contato e Localização
+            </div>
+            
+            <div class="row g-4 mb-4">
+                <div class="col-md-6">
+                    <label class="label-saas">E-mail (Acesso ao Portal)</label>
+                    <input type="email" name="email" class="form-control form-control-saas" value="{{ usuario_edit.email }}" required>
                 </div>
-                <div class="col-md-6 mb-3">
-                    <label class="fw-bold">Telefone / WhatsApp</label>
-                    <input type="text" name="telefone" class="form-control phone" value="{{ paciente.telefone|default:'' }}" placeholder="(00) 00000-0000">
+                <div class="col-md-6">
+                    <label class="label-saas">WhatsApp / Telefone</label>
+                    <input type="text" name="telefone" class="form-control form-control-saas phone" value="{{ paciente.telefone|default:'' }}" placeholder="(00) 00000-0000">
+                </div>
+                <div class="col-md-12">
+                    <label class="label-saas">Endereço Residencial</label>
+                    <input type="text" name="address" class="form-control form-control-saas" value="{{ paciente.address }}" placeholder="Ex: Rua das Flores, 123 - Centro">
                 </div>
             </div>
 
-            <div class="row">
-                <div class="col-md-12 mb-3">
-                    <label class="fw-bold">Endereço Residencial</label>
-                    <input type="text" name="address" class="form-control" value="{{ paciente.address }}" placeholder="Rua, Número, Bairro, Cidade">
+            <div class="section-divider">
+                <i class="fas fa-notes-medical"></i> Dados Médicos (Prontuário)
+            </div>
+            
+            <div class="mb-5">
+                <label class="label-saas">Histórico Médico / Observações Importantes</label>
+                <textarea name="historico_medico" class="form-control form-control-saas" rows="4" 
+                          placeholder="Alergias, medicamentos contínuos, cirurgias ou condições crônicas...">{{ paciente.historico_medico }}</textarea>
+                <div class="form-text mt-2" style="color: #64748b; font-weight: 500;">
+                    <i class="fas fa-exclamation-triangle me-1"></i> Use este campo para destacar informações vitais ao dentista.
                 </div>
             </div>
 
-            <h5 class="text-secondary border-bottom pb-2 mb-3 mt-4">Dados Médicos</h5>
-            <div class="mb-4">
-                <label class="fw-bold">Histórico Médico / Observações</label>
-                <textarea name="historico_medico" class="form-control" rows="4" placeholder="Alergias, medicamentos em uso, cirurgias prévias...">{{ paciente.historico_medico }}</textarea>
-            </div>
-
-            <div class="d-flex justify-content-between align-items-center border-top pt-4">
-                <a href="{% url 'manage_paciente' %}" class="btn btn-light px-4">
-                    <i class="fas fa-times me-1"></i> Cancelar
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-center border-top pt-5 mt-4 gap-3">
+                <a href="{% url 'manage_paciente' %}" class="btn btn-cancel-saas px-4">
+                    <i class="fas fa-times me-2"></i> Cancelar Edição
                 </a>
-                <button type="submit" class="btn btn-warning px-5 fw-bold">
-                    <i class="fas fa-save me-1"></i> Atualizar Cadastro
+                <button type="submit" class="btn btn-save-saas">
+                    <i class="fas fa-save me-2"></i> Salvar Alterações no Cadastro
                 </button>
             </div>
         </form>
@@ -86,5 +235,4 @@
         $('.phone').mask('(00) 00000-0000');
     });
 </script>
-
 {% endblock main_content %}

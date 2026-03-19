@@ -2,71 +2,228 @@
 {% load static %}
 
 {% block main_content %}
-<div class="container-fluid">
-    <div class="row mb-4 align-items-center">
+<style>
+    .page-container {
+        animation: fadeIn 0.5s ease-in-out;
+    }
+
+    /* Cabeçalho da Página */
+    .page-header {
+        margin-bottom: 2rem;
+    }
+
+    .btn-add {
+        background-color: var(--accent);
+        color: white;
+        border: none;
+        padding: 10px 24px;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+
+    .btn-add:hover {
+        background-color: var(--accent-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3);
+        color: white;
+    }
+
+    /* Card da Tabela */
+    .content-card {
+        background: var(--surface);
+        border-radius: 16px;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+    }
+
+    /* Customização da Tabela */
+    .table-custom thead {
+        background-color: #f8fafc;
+    }
+
+    .table-custom thead th {
+        font-family: 'Poppins', sans-serif;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-weight: 700;
+        color: var(--muted);
+        border-bottom: 1px solid var(--border);
+        padding: 16px 24px;
+    }
+
+    .table-custom tbody tr {
+        transition: background-color 0.2s ease;
+    }
+
+    .table-custom tbody tr:hover {
+        background-color: #f8fafc;
+    }
+
+    .table-custom td {
+        padding: 18px 24px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+        vertical-align: middle;
+    }
+
+    /* Avatar / Ícone circular */
+    .avatar-wrapper {
+        width: 44px;
+        height: 44px;
+        background-color: var(--accent-soft);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+    }
+
+    tr:hover .avatar-wrapper {
+        background-color: var(--accent);
+    }
+
+    .avatar-wrapper img {
+        width: 22px;
+        transition: all 0.3s ease;
+    }
+
+    tr:hover .avatar-wrapper img {
+        filter: brightness(0) invert(1);
+    }
+
+    /* Badges Minimalistas */
+    .badge-soft {
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 6px 12px;
+        border-radius: 8px;
+        background-color: var(--accent-soft);
+        color: var(--accent);
+        border: 1px solid rgba(37, 99, 235, 0.1);
+    }
+
+    /* Botões de Ação */
+    .btn-action-edit {
+        color: var(--muted);
+        background: transparent;
+        border: 1.5px solid var(--border);
+        padding: 6px 14px;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        transition: all 0.2s;
+    }
+
+    .btn-action-edit:hover {
+        background: #fff;
+        border-color: #fbbf24;
+        color: #d97706;
+    }
+
+    .btn-action-delete {
+        color: #ef4444;
+        background: transparent;
+        border: 1.5px solid transparent;
+        padding: 6px 14px;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        transition: all 0.2s;
+    }
+
+    .btn-action-delete:hover {
+        background: #fef2f2;
+        color: #b91c1c;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<div class="container-fluid py-4 page-container">
+    
+    <div class="row page-header align-items-center">
         <div class="col-md-6">
-            <h2 class="fw-bold mb-0">Corpo Clínico</h2>
-            <p class="text-muted">Gerencie os dentistas e suas informações profissionais.</p>
+            <h2 class="fw-bold text-dark mb-1">Corpo Clínico</h2>
+            <p class="text-muted small mb-0">Gestão de profissionais e especialidades médicas.</p>
         </div>
-        <div class="col-md-6 text-md-end">
-            <a href="{% url 'add_dentista' %}" class="btn btn-success shadow-sm px-4">
-                <img src="{% static 'adicionar.png' %}" style="width: 18px; margin-right: 5px; filter: brightness(0) invert(1);"> Novo Dentista
+        <div class="col-md-6 text-md-end mt-3 mt-md-0">
+            <a href="{% url 'add_dentista' %}" class="btn btn-add">
+                <i class="fas fa-plus me-2"></i> Adicionar Profissional
             </a>
         </div>
     </div>
 
-    <div class="card shadow-sm border-0">
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="bg-light text-secondary">
-                        <tr>
-                            <th class="ps-4">Dentista / CRO</th>
-                            <th>Especialidade</th>
-                            <th>Contato / CPF</th>
-                            <th class="text-end pe-4">Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for dentista in dentistas %}
-                        <tr>
-                            <td class="ps-4">
-                                <div class="d-flex align-items-center">
-                                    <div class="icon-box bg-primary-subtle rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
-                                        <img src="{% static 'dentista.png' %}" style="width: 20px;">
+    <div class="content-card">
+        <div class="table-responsive">
+            <table class="table table-custom mb-0">
+                <thead>
+                    <tr>
+                        <th>Profissional / Registro</th>
+                        <th>Especialidade</th>
+                        <th>Informações de Contato</th>
+                        <th class="text-end">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for dentista in dentistas %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-wrapper me-3">
+                                    <img src="{% static 'dentista.png' %}" alt="Ícone">
+                                </div>
+                                <div>
+                                    <div class="fw-bold text-dark" style="font-size: 0.95rem;">
+                                        {{ dentista.admin.first_name }} {{ dentista.admin.last_name }}
                                     </div>
-                                    <div>
-                                        <div class="fw-bold text-primary">{{ dentista.admin.first_name }} {{ dentista.admin.last_name }}</div>
-                                        <small class="text-muted">CRO: {{ dentista.cro }}</small>
+                                    <div class="text-muted" style="font-size: 0.8rem;">
+                                        CRO: <span class="fw-medium">{{ dentista.cro }}</span>
                                     </div>
                                 </div>
-                            </td>
-                            <td>
-                                <span class="badge bg-info-subtle text-info border border-info-subtle px-3 py-2">
-                                    {{ dentista.especialidade }}
-                                </span>
-                            </td>
-                            <td>
-                                <div class="small fw-bold">{{ dentista.telefone|default:"Sem telefone" }}</div>
-                                <div class="text-muted small">CPF: {{ dentista.cpf|default:"---" }}</div>
-                            </td>
-                            <td class="text-end pe-4">
-                                <a href="{% url 'edit_dentista' dentista.admin.id %}" class="btn btn-sm btn-outline-warning px-3 me-2">
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge-soft">
+                                {{ dentista.especialidade }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="text-dark fw-medium" style="font-size: 0.85rem;">
+                                {{ dentista.telefone|default:"--" }}
+                            </div>
+                            <div class="text-muted small">
+                                {{ dentista.admin.email }}
+                            </div>
+                        </td>
+                        <td class="text-end">
+                            <div class="d-flex justify-content-end gap-2">
+                                <a href="{% url 'edit_dentista' dentista.admin.id %}" class="btn btn-action-edit">
                                     Editar
                                 </a>
-                                <a href="{% url 'delete_dentista' dentista.admin.id %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Tem certeza que deseja remover este dentista?')">
+                                <a href="{% url 'delete_dentista' dentista.admin.id %}" 
+                                   class="btn btn-action-delete" 
+                                   onclick="return confirm('Deseja realmente remover este registro?')">
                                     Excluir
                                 </a>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="4" class="text-center py-5 text-muted">Nenhum dentista cadastrado.</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center py-5">
+                            <img src="{% static 'dentista.png' %}" style="width: 48px; opacity: 0.2; margin-bottom: 15px;">
+                            <p class="text-muted mb-0">Nenhum profissional cadastrado no sistema.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
 </div>

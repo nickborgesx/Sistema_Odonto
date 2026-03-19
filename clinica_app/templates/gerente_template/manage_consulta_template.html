@@ -1,65 +1,249 @@
 {% extends 'base.html' %}
+{% load static %}
+
 {% block main_content %}
-<div class="container">
-    <div class="card shadow-sm border-0">
-        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-            <h4 class="mb-0 fw-bold"> Todas as Consultas</h4>
-            <a href="{% url 'add_consulta' %}" class="btn btn-primary btn-sm">+ Novo Agendamento</a>
+<style>
+    .page-container {
+        animation: fadeIn 0.5s ease-in-out;
+    }
+
+    /* Cabeçalho */
+    .page-header {
+        margin-bottom: 2rem;
+    }
+
+    .btn-add {
+        background-color: var(--accent);
+        color: white;
+        border: none;
+        padding: 10px 24px;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+
+    .btn-add:hover {
+        background-color: var(--accent-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3);
+        color: white;
+    }
+
+    /* Card da Tabela */
+    .content-card {
+        background: var(--surface);
+        border-radius: 16px;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+    }
+
+    /* Tabela Customizada */
+    .table-custom thead {
+        background-color: #f8fafc;
+    }
+
+    .table-custom thead th {
+        font-family: 'Poppins', sans-serif;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-weight: 700;
+        color: var(--muted);
+        border-bottom: 1px solid var(--border);
+        padding: 16px 24px;
+    }
+
+    .table-custom td {
+        padding: 18px 24px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+        vertical-align: middle;
+    }
+
+    /* Estilo de Data e Hora */
+    .datetime-box {
+        background-color: #f1f5f9;
+        padding: 8px 12px;
+        border-radius: 10px;
+        display: inline-block;
+        border: 1px solid #e2e8f0;
+    }
+
+    .time-text {
+        color: var(--accent);
+        font-weight: 700;
+        display: block;
+        font-size: 0.9rem;
+    }
+
+    .date-text {
+        color: #64748b;
+        font-size: 0.75rem;
+    }
+
+    /* Avatar do Paciente */
+    .patient-avatar {
+        width: 40px;
+        height: 40px;
+        background-color: var(--accent-soft);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .patient-avatar img {
+        width: 18px;
+    }
+
+    /* Status Badges */
+    .status-pill {
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 6px 12px;
+        border-radius: 20px;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+    }
+
+    .status-done {
+        background-color: #dcfce7;
+        color: #15803d;
+    }
+
+    .status-pending {
+        background-color: #fef9c3;
+        color: #a16207;
+    }
+
+    /* Botões de Ação */
+    .btn-action-edit {
+        color: #64748b;
+        background: transparent;
+        border: 1.5px solid #e2e8f0;
+        padding: 6px 14px;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        transition: all 0.2s;
+    }
+
+    .btn-action-edit:hover {
+        border-color: #fbbf24;
+        color: #d97706;
+    }
+
+    .btn-action-delete {
+        color: #ef4444;
+        background: transparent;
+        border: 1.5px solid transparent;
+        padding: 6px 14px;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        transition: all 0.2s;
+    }
+
+    .btn-action-delete:hover {
+        background: #fef2f2;
+        color: #b91c1c;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<div class="container-fluid py-4 page-container">
+    
+    <div class="row page-header align-items-center">
+        <div class="col-md-6">
+            <h2 class="fw-bold text-dark mb-1">Agenda de Consultas</h2>
+            <p class="text-muted small mb-0">Gerencie os horários e atendimentos da clínica.</p>
         </div>
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="bg-light text-muted small text-uppercase">
-                        <tr>
-                            <th class="ps-4">Data/Hora</th>
-                            <th>Paciente</th>
-                            <th>Dentista</th>
-                            <th>Procedimento</th>
-                            <th>Status</th>
-                            <th class="text-end pe-4">Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for c in consultas %}
-                        <tr>
-                            <td class="ps-4">
-                                <div class="fw-bold">{{ c.data_consulta|date:"d/m/Y" }}</div>
-                                <small class="text-muted">{{ c.data_consulta|date:"H:i" }}</small>
-                            </td>
-                            <td>{{ c.paciente_id.admin.first_name }} {{ c.paciente_id.admin.last_name }}</td>
-                            <td>
-                                {% with fn=c.dentista_id.admin.first_name ln=c.dentista_id.admin.last_name em=c.dentista_id.admin.email %}
-                                    Dr(a).
-                                    {% if fn or ln %}
-                                        {{ fn }} {{ ln }}
-                                    {% elif em %}
-                                        {{ em }}
-                                    {% else %}
-                                        Sem nome
-                                    {% endif %}
-                                {% endwith %}
-                            </td>
-                            <td><span class="badge bg-info text-dark">{{ c.procedimento_id.nome }}</span></td>
-                            <td>
-                                {% if c.status %}
-                                    <span class="badge bg-success">Concluída</span>
-                                {% else %}
-                                    <span class="badge bg-warning text-dark">Pendente</span>
-                                {% endif %}
-                            </td>
-                            <td class="text-end pe-4">
-                                <a href="{% url 'edit_consulta' c.id %}" class="btn btn-outline-warning btn-sm border-0">Editar</a>
-                                <a href="{% url 'delete_consulta' c.id %}" class="btn btn-outline-danger btn-sm border-0" onclick="return confirm('Excluir este agendamento?')">Excluir</a>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="6" class="text-center py-5 text-muted">Nenhuma consulta encontrada no sistema.</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+        <div class="col-md-6 text-md-end mt-3 mt-md-0">
+            <a href="{% url 'add_consulta' %}" class="btn btn-add">
+                <i class="fas fa-calendar-plus me-2"></i> Novo Agendamento
+            </a>
+        </div>
+    </div>
+
+    <div class="content-card">
+        <div class="table-responsive">
+            <table class="table table-custom mb-0">
+                <thead>
+                    <tr>
+                        <th>Horário</th>
+                        <th>Paciente</th>
+                        <th>Dentista / Procedimento</th>
+                        <th>Status</th>
+                        <th class="text-end">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in consultas %}
+                    <tr>
+                        <td>
+                            <div class="datetime-box">
+                                <span class="time-text">{{ c.data_consulta|date:"H:i" }}</span>
+                                <span class="date-text">{{ c.data_consulta|date:"d/m/Y" }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="patient-avatar me-3">
+                                    <img src="{% static 'utilizador.png' %}" alt="Paciente">
+                                </div>
+                                <div>
+                                    <div class="fw-bold text-dark" style="font-size: 0.95rem;">
+                                        {{ c.paciente_id.admin.first_name }} {{ c.paciente_id.admin.last_name }}
+                                    </div>
+                                    <div class="text-muted small">
+                                        CPF: {{ c.paciente_id.cpf|default:"---" }}
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="text-dark fw-bold" style="font-size: 0.85rem;">
+                                Dr(a). {{ c.dentista_id.admin.first_name|default:c.dentista_id.admin.email }}
+                            </div>
+                            <div class="badge bg-primary-subtle text-primary mt-1 fw-medium" style="font-size: 0.7rem; border: 1px solid rgba(37, 99, 235, 0.1);">
+                                {{ c.procedimento_id.nome }}
+                            </div>
+                        </td>
+                        <td>
+                            {% if c.status %}
+                                <span class="status-pill status-done">Concluída</span>
+                            {% else %}
+                                <span class="status-pill status-pending">Pendente</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            <div class="d-flex justify-content-end gap-2">
+                                <a href="{% url 'edit_consulta' c.id %}" class="btn btn-action-edit">
+                                    Editar
+                                </a>
+                                <a href="{% url 'delete_consulta' c.id %}" 
+                                   class="btn btn-action-delete" 
+                                   onclick="return confirm('Deseja cancelar este agendamento?')">
+                                    Excluir
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5">
+                            <img src="{% static 'calendario.png' %}" style="width: 48px; opacity: 0.15; margin-bottom: 15px;">
+                            <p class="text-muted mb-0">Nenhum agendamento encontrado.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
 </div>

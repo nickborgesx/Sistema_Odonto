@@ -2,107 +2,292 @@
 {% load static %}
 
 {% block main_content %}
-<div class="container-fluid">
-    <div class="row mb-4 align-items-center">
-        <div class="col-md-6">
-            <h2 class="fw-bold mb-0">Painel de Atendimento</h2>
-            {% if proxima_consulta_pendente %}
-                <small class="text-muted">Próxima consulta pendente: <strong>{{ proxima_consulta_pendente.data_consulta|date:"d/m/Y - H:i" }}</strong></small>
-            {% else %}
-                <small class="text-muted">Nenhuma consulta pendente na agenda.</small>
-            {% endif %}
-        </div>
-        
-        <div class="col-md-6">
-            <form method="GET" action="{% url 'dentista_manage_paciente' %}" class="d-flex shadow-sm rounded bg-white overflow-hidden" style="border: 1px solid #e9ecef;">
-                <input type="text" name="q" class="form-control border-0" placeholder="Buscar paciente pelo nome..." value="{{ request.GET.q }}" style="box-shadow: none; padding: 12px 20px;">
-                <button class="btn btn-white border-0 bg-white px-3" type="submit">
-                    <img src="{% static 'procurar.png' %}" alt="Buscar" style="width: 20px; height: 20px;">
-                </button>
+<style>
+    .page-container {
+        animation: fadeIn 0.5s ease-in-out;
+    }
+
+    /* Barra de Busca SaaS */
+    .search-wrapper {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        transition: all 0.3s ease;
+    }
+
+    .search-wrapper:focus-within {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 4px var(--accent-soft);
+    }
+
+    .search-input {
+        border: none;
+        padding: 12px 20px;
+        font-size: 0.9rem;
+        background: transparent;
+    }
+
+    .search-input:focus {
+        outline: none;
+        box-shadow: none;
+    }
+
+    /* Cards de Indicadores */
+    .kpi-card {
+        background: var(--surface);
+        border-radius: 16px;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .kpi-card::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+    }
+
+    .kpi-realizadas::before { background: #10b981; }
+    .kpi-pendentes::before { background: #f59e0b; }
+
+    .kpi-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-weight: 700;
+        color: var(--muted);
+    }
+
+    .kpi-value {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: var(--text);
+    }
+
+    /* Tabelas e Cards de Conteúdo */
+    .content-card {
+        background: var(--surface);
+        border-radius: 16px;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        margin-bottom: 2rem;
+    }
+
+    .card-header-custom {
+        background: #f8fafc;
+        padding: 16px 24px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .table-custom thead th {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-weight: 700;
+        color: var(--muted);
+        padding: 16px 24px;
+        background: #f8fafc;
+    }
+
+    .table-custom td {
+        padding: 16px 24px;
+        vertical-align: middle;
+    }
+
+    /* Badges e Botões */
+    .datetime-badge {
+        background-color: #f1f5f9;
+        color: #475569;
+        font-weight: 600;
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-size: 0.8rem;
+    }
+
+    .status-pill {
+        font-size: 0.7rem;
+        font-weight: 700;
+        padding: 4px 10px;
+        border-radius: 20px;
+        text-transform: uppercase;
+    }
+
+    .status-done { background: #dcfce7; color: #15803d; }
+    .status-pending { background: #fef9c3; color: #a16207; }
+
+    .btn-finalize {
+        background-color: var(--accent);
+        color: white;
+        border-radius: 8px;
+        padding: 6px 16px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        border: none;
+        transition: all 0.2s;
+    }
+
+    .btn-finalize:hover {
+        background-color: var(--accent-dark);
+        transform: translateY(-1px);
+        color: white;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<div class="container-fluid py-4 page-container">
+    
+<div class="row mb-5 align-items-center">
+    <div class="col-lg-6">
+        <h1 class="fw-extrabold text-dark mb-2" style="font-size: 2.5rem; letter-spacing: -1px;">
+            Painel de Atendimento
+        </h1>
+        <p class="text-muted fs-5 mb-0">
+            Agenda de hoje: <span class="fw-bold text-primary" style="text-transform: capitalize;">{{ hoje|date:"d \d\e F" }}</span>
+        </p>
+    </div>
+        <div class="col-lg-6 mt-3 mt-lg-0">
+            <form method="GET" action="{% url 'dentista_home' %}">
+                <div class="search-wrapper d-flex align-items-center px-2 bg-white shadow-sm" style="border-radius: 14px;">
+                    <i class="fas fa-search text-muted ms-3"></i>
+                    <input type="text" name="q" class="form-control search-input flex-grow-1" 
+                        placeholder="Localizar consultas (Nome ou CPF)..." value="{{ q|default:'' }}"
+                        style="padding: 15px 20px; font-size: 1rem;">
+                    <button class="btn btn-primary rounded-3 px-4 py-2 ms-2 my-1 fw-bold" type="submit">
+                        Buscar
+                    </button>
+                </div>
             </form>
         </div>
     </div>
 
-    <div class="row g-4">
-        <div class="col-md-4">
-            <div class="card h-100 border-0 shadow-sm" style="border-left: 5px solid #007bff !important;">
+    <div class="row g-4 mb-5">
+        <div class="col-md-6">
+            <div class="card kpi-card kpi-realizadas border-0 shadow-sm">
                 <div class="card-body p-4">
-                    <h6 class="text-uppercase text-muted fw-bold small">Pacientes</h6>
-                    <h2 class="fw-bold mb-0">{{ total_pacientes }}</h2>
+                    <div class="kpi-label">Consultas Realizadas</div>
+                    <div class="kpi-value">{{ consultas_realizadas_hoje }}</div>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card h-100 border-0 shadow-sm" style="border-left: 5px solid #28a745 !important;">
+        <div class="col-md-6">
+            <div class="card kpi-card kpi-pendentes border-0 shadow-sm">
                 <div class="card-body p-4">
-                    <h6 class="text-uppercase text-muted fw-bold small">Consultas</h6>
-                    <h2 class="fw-bold mb-0">{{ total_consultas }}</h2>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card h-100 border-0 shadow-sm" style="border-left: 5px solid #ffc107 !important;">
-                <div class="card-body p-4">
-                    <h6 class="text-uppercase text-muted fw-bold small">Pendentes</h6>
-                    <h2 class="fw-bold mb-0">{{ consultas_pendentes }}</h2>
+                    <div class="kpi-label">Restantes para Hoje</div>
+                    <div class="kpi-value">{{ consultas_pendentes_hoje }}</div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="row mt-5">
-        <div class="col-12">
-            <div class="card shadow-sm">
-                <div class="card-header bg-white py-3">
-                    <h5 class="mb-0 fw-bold">Agenda Completa</h5>
-                </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0">
-                            <thead class="bg-light">
-                                <tr>
-                                    <th class="ps-4">Paciente</th>
-                                    <th>Horário</th>
-                                    <th>Procedimento</th>
-                                    <th class="text-end pe-4">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for consulta in consultas %}
-                                <tr>
-                                    <td class="ps-4">
-                                        <div class="fw-bold">{{ consulta.paciente_id.admin.first_name }} {{ consulta.paciente_id.admin.last_name }}</div>
-                                        <small class="text-muted">{{ consulta.paciente_id.genero }}</small>
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-light text-dark border">
-                                            {{ consulta.data_consulta|date:"d/m/Y - H:i" }}
-                                        </span>
-                                    </td>
-                                    <td>{{ consulta.procedimento_id.nome }}</td>
-                                    <td class="text-end pe-4">
-                                        {% if not consulta.status %}
-                                            <form method="post" action="{% url 'dentista_finalizar_consulta' consulta.id %}" class="d-inline">
-                                                {% csrf_token %}
-                                                <button type="submit" class="btn btn-sm btn-success">Finalizar</button>
-                                            </form>
-                                        {% else %}
-                                            <span class="badge bg-success">Concluída</span>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                                {% empty %}
-                                <tr>
-                                    <td colspan="4" class="text-center py-5 text-muted">
-                                        <p class="mb-0">Nenhum agendamento encontrado.</p>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+    <div class="content-card">
+        <div class="card-header-custom d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 fw-bold text-dark"><i class="far fa-calendar-check me-2 text-primary"></i>Agenda do Dia</h5>
+            <span class="badge bg-primary-subtle text-primary rounded-pill px-3">{{ agenda_hoje|length }} atendimentos</span>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-custom mb-0">
+                <thead>
+                    <tr>
+                        <th>Paciente</th>
+                        <th>Horário</th>
+                        <th>Procedimento</th>
+                        <th class="text-end">Ação</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for consulta in agenda_hoje %}
+                    <tr>
+                        <td>
+                            <div class="fw-bold text-dark">{{ consulta.paciente_id.admin.first_name }} {{ consulta.paciente_id.admin.last_name }}</div>
+                            <small class="text-muted">{{ consulta.paciente_id.genero|default:"--" }}</small>
+                        </td>
+                        <td>
+                            <div class="datetime-badge">
+                                <i class="far fa-clock me-1 opacity-50"></i> {{ consulta.data_consulta|date:"H:i" }}
+                            </div>
+                        </td>
+                        <td>
+                            <span class="fw-medium text-dark">{{ consulta.procedimento_id.nome }}</span>
+                        </td>
+                        <td class="text-end">
+                            <form method="post" action="{% url 'dentista_finalizar_consulta' consulta.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-finalize">
+                                    Finalizar Atendimento
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center py-5">
+                            <p class="text-muted mb-0">Nenhum atendimento pendente para hoje.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="content-card">
+        <div class="card-header-custom d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 fw-bold text-dark">Histórico e Pesquisa</h5>
+            {% if q %}
+                <a href="{% url 'dentista_home' %}" class="btn btn-link btn-sm text-decoration-none text-muted">Limpar filtros</a>
+            {% endif %}
+        </div>
+        <div class="table-responsive">
+            <table class="table table-custom mb-0">
+                <thead>
+                    <tr>
+                        <th>Data / Hora</th>
+                        <th>Paciente</th>
+                        <th>Procedimento</th>
+                        <th class="text-end">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if consultas_busca %}
+                        {% for c in consultas_busca %}
+                        <tr>
+                            <td>
+                                <div class="text-dark fw-medium small">{{ c.data_consulta|date:"d/m/Y" }}</div>
+                                <div class="text-muted extra-small" style="font-size: 0.75rem;">{{ c.data_consulta|date:"H:i" }}</div>
+                            </td>
+                            <td class="fw-bold text-dark">{{ c.paciente_id.admin.first_name }} {{ c.paciente_id.admin.last_name }}</td>
+                            <td>{{ c.procedimento_id.nome }}</td>
+                            <td class="text-end">
+                                {% if c.status %}
+                                    <span class="status-pill status-done">Concluída</span>
+                                {% else %}
+                                    <span class="status-pill status-pending">Pendente</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="text-center py-5 text-muted">
+                            {% if q %}
+                                Não encontramos resultados para "{{ q }}"
+                            {% else %}
+                                Realize uma busca acima para consultar históricos anteriores.
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
         </div>
     </div>
 </div>

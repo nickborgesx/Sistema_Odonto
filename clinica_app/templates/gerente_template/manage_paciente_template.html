@@ -2,83 +2,248 @@
 {% load static %}
 
 {% block main_content %}
-<div class="container-fluid">
-    <div class="row mb-4 align-items-center">
+<style>
+    .page-container {
+        animation: fadeIn 0.5s ease-in-out;
+    }
+
+    /* Cabeçalho Profissional */
+    .page-header {
+        margin-bottom: 2rem;
+    }
+
+    .btn-add {
+        background-color: var(--accent);
+        color: white;
+        border: none;
+        padding: 10px 24px;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+
+    .btn-add:hover {
+        background-color: var(--accent-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3);
+        color: white;
+    }
+
+    /* Card Principal */
+    .content-card {
+        background: var(--surface);
+        border-radius: 16px;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+    }
+
+    /* Estilização da Tabela */
+    .table-custom thead {
+        background-color: #f8fafc;
+    }
+
+    .table-custom thead th {
+        font-family: 'Poppins', sans-serif;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-weight: 700;
+        color: var(--muted);
+        border-bottom: 1px solid var(--border);
+        padding: 16px 24px;
+    }
+
+    .table-custom tbody tr {
+        transition: background-color 0.2s ease;
+    }
+
+    .table-custom tbody tr:hover {
+        background-color: #f8fafc;
+    }
+
+    .table-custom td {
+        padding: 18px 24px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+        vertical-align: middle;
+    }
+
+    /* Avatar do Paciente */
+    .patient-avatar {
+        width: 44px;
+        height: 44px;
+        background-color: var(--accent-soft);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+    }
+
+    tr:hover .patient-avatar {
+        background-color: var(--accent);
+    }
+
+    .patient-avatar img {
+        width: 20px;
+        transition: all 0.3s ease;
+    }
+
+    tr:hover .patient-avatar img {
+        filter: brightness(0) invert(1);
+    }
+
+    /* Badge Minimalista */
+    .badge-gender {
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 5px 12px;
+        border-radius: 8px;
+        background-color: #f1f5f9;
+        color: #475569;
+        border: 1px solid #e2e8f0;
+    }
+
+    /* Botões de Ação Estilizados */
+    .btn-action-group .btn {
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        transition: all 0.2s;
+        margin-left: 4px;
+    }
+
+    .btn-ficha {
+        color: var(--accent);
+        border: 1.5px solid var(--accent-soft);
+        background: var(--accent-soft);
+    }
+
+    .btn-ficha:hover {
+        background: var(--accent);
+        color: white;
+        border-color: var(--accent);
+    }
+
+    .btn-edit {
+        color: #64748b;
+        border: 1.5px solid #e2e8f0;
+        background: transparent;
+    }
+
+    .btn-edit:hover {
+        border-color: #fbbf24;
+        color: #d97706;
+    }
+
+    .btn-delete {
+        color: #ef4444;
+        border: 1.5px solid transparent;
+        background: transparent;
+    }
+
+    .btn-delete:hover {
+        background: #fef2f2;
+        color: #b91c1c;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<div class="container-fluid py-4 page-container">
+    
+    <div class="row page-header align-items-center">
         <div class="col-md-6">
-            <h2 class="fw-bold mb-0">Gestão de Pacientes</h2>
-            <p class="text-muted">Visualize e gerencie o cadastro de todos os pacientes da clínica.</p>
+            <h2 class="fw-bold text-dark mb-1">Gestão de Pacientes</h2>
+            <p class="text-muted small mb-0">Base de dados centralizada e prontuários ativos.</p>
         </div>
-        <div class="col-md-6 text-md-end">
-            <a href="{% url 'add_paciente' %}" class="btn btn-success shadow-sm px-4">
-                <img src="{% static 'adicionar.png' %}" style="width: 18px; margin-right: 5px; filter: brightness(0) invert(1);"> Novo Paciente
+        <div class="col-md-6 text-md-end mt-3 mt-md-0">
+            <a href="{% url 'add_paciente' %}" class="btn btn-add">
+                <i class="fas fa-user-plus me-2"></i> Novo Paciente
             </a>
         </div>
     </div>
 
-    <div class="card shadow-sm border-0">
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="bg-light text-secondary">
-                        <tr>
-                            <th class="ps-4">Paciente / CPF</th>
-                            <th>Contato / E-mail</th>
-                            <th>Gênero / Nascimento</th>
-                            <th class="text-end pe-4">Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for paciente in pacientes %}
-                        <tr>
-                            <td class="ps-4">
-                                <div class="d-flex align-items-center">
-                                    <div class="icon-box bg-primary-subtle rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
-                                        <img src="{% static 'utilizador.png' %}" style="width: 20px;">
+    <div class="content-card">
+        <div class="table-responsive">
+            <table class="table table-custom mb-0">
+                <thead>
+                    <tr>
+                        <th>Paciente / Identificação</th>
+                        <th>Contato Principal</th>
+                        <th>Dados Demográficos</th>
+                        <th class="text-end">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for paciente in pacientes %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="patient-avatar me-3">
+                                    <img src="{% static 'utilizador.png' %}" alt="Ícone">
+                                </div>
+                                <div>
+                                    <div class="fw-bold text-dark" style="font-size: 0.95rem;">
+                                        {{ paciente.admin.first_name }} {{ paciente.admin.last_name }}
                                     </div>
-                                    <div>
-                                        <div class="fw-bold text-primary">{{ paciente.admin.first_name }} {{ paciente.admin.last_name }}</div>
-                                        <small class="text-muted">CPF: {{ paciente.cpf|default:"---" }}</small>
+                                    <div class="text-muted" style="font-size: 0.8rem;">
+                                        CPF: <span class="fw-medium">{{ paciente.cpf|default:"---" }}</span>
                                     </div>
                                 </div>
-                            </td>
-                            <td>
-                                <div class="small fw-bold">{{ paciente.admin.email }}</div>
-                                <div class="text-muted small">{{ paciente.telefone|default:"Sem telefone" }}</div>
-                            </td>
-                            <td>
-                                <span class="badge bg-light text-dark border px-3 py-2">
-                                    {{ paciente.genero|default:"—" }}
-                                </span>
-                                <div class="text-muted small mt-1">
-                                    {% if paciente.data_nascimento %}
-                                        <i class="far fa-calendar-alt me-1"></i> {{ paciente.data_nascimento|date:"d/m/Y" }}
-                                    {% else %}
-                                        Nascimento não inf.
-                                    {% endif %}
-                                </div>
-                            </td>
-                            <td class="text-end pe-4">
-                                <a href="{% url 'view_paciente' paciente.id %}" class="btn btn-sm btn-outline-info px-3 me-1">
+                            </div>
+                        </td>
+                        <td>
+                            <div class="text-dark fw-medium" style="font-size: 0.85rem;">
+                                {{ paciente.admin.email }}
+                            </div>
+                            <div class="text-muted small">
+                                {{ paciente.telefone|default:"Sem telefone" }}
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge-gender">
+                                {{ paciente.genero|default:"Não informado" }}
+                            </span>
+                            <div class="text-muted small mt-2">
+                                {% if paciente.data_nascimento %}
+                                    <span class="opacity-75">Nascimento:</span> {{ paciente.data_nascimento|date:"d/m/Y" }}
+                                {% else %}
+                                    <span class="opacity-50">Sem data cadastrada</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td class="text-end">
+                            <div class="d-flex justify-content-end btn-action-group">
+                                <a href="{% url 'view_paciente' paciente.id %}" class="btn btn-ficha" title="Ver Prontuário">
                                     Ficha
                                 </a>
-                                
-                                <a href="{% url 'edit_paciente' paciente.admin.id %}" class="btn btn-sm btn-outline-warning px-3 me-1">
+                                <a href="{% url 'edit_paciente' paciente.admin.id %}" class="btn btn-edit">
                                     Editar
                                 </a>
-                                
-                                <a href="{% url 'delete_paciente' paciente.admin.id %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Tem certeza que deseja remover este paciente?')">
+                                <a href="{% url 'delete_paciente' paciente.admin.id %}" 
+                                   class="btn btn-delete" 
+                                   onclick="return confirm('Deseja realmente remover este paciente?')">
                                     Excluir
                                 </a>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="4" class="text-center py-5 text-muted">Nenhum paciente cadastrado no sistema.</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center py-5">
+                            <img src="{% static 'utilizador.png' %}" style="width: 48px; opacity: 0.15; margin-bottom: 15px;">
+                            <p class="text-muted mb-0">Nenhum paciente encontrado na base de dados.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
 </div>

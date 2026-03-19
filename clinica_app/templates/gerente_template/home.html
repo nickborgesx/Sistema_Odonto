@@ -3,100 +3,179 @@
 
 {% block main_content %}
 <style>
-    .hover-card {
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        border-radius: 15px !important;
+    /* Estilo Minimalista e Profissional */
+    .dashboard-container {
+        animation: fadeIn 0.5s ease-in-out;
+    }
+
+    .stat-card {
+        background: var(--surface);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        border-radius: 16px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
         overflow: hidden;
     }
-    .hover-card:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 10px 20px rgba(0,0,0,0.12) !important;
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08) !important;
+        border-color: var(--accent);
     }
-    .icon-box {
-        width: 70px; height: 70px;
-        display: flex; align-items: center; justify-content: center;
-        border-radius: 15px; margin: 0 auto 20px; padding: 10px;
+
+    .icon-wrapper {
+        width: 56px;
+        height: 56px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        background-color: var(--accent-soft);
+        margin-bottom: 20px;
+        transition: all 0.3s ease;
     }
-    .icon-box img { max-width: 100%; max-height: 100%; object-fit: contain; }
+
+    .stat-card:hover .icon-wrapper {
+        background-color: var(--accent);
+    }
+
+    .stat-card:hover .icon-wrapper img {
+        filter: brightness(0) invert(1);
+    }
+
+    .icon-wrapper img {
+        width: 28px;
+        height: 28px;
+        object-fit: contain;
+        transition: all 0.3s ease;
+    }
+
+    .card-title {
+        font-size: 1.1rem;
+        color: var(--text);
+        font-weight: 700;
+    }
+
+    .card-desc {
+        font-size: 0.85rem;
+        color: var(--muted);
+        line-height: 1.5;
+    }
+
+    .btn-action {
+        padding: 10px 20px;
+        font-size: 0.85rem;
+        letter-spacing: 0.3px;
+        border-radius: 10px;
+        transition: all 0.2s;
+    }
+
+    .btn-outline-minimal {
+        border: 1.5px solid var(--border);
+        color: var(--text);
+        background: transparent;
+    }
+
+    .btn-outline-minimal:hover {
+        background: var(--bg);
+        border-color: var(--muted);
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 768px) {
+        .stat-card { margin-bottom: 10px; }
+    }
 </style>
 
-<div class="container-fluid py-4 px-3">
+<div class="container-fluid py-4 dashboard-container">
     <div class="row mb-5">
-        <div class="col-12 text-center text-md-start p-0">
+        <div class="col-12">
             <h2 class="fw-bold text-dark mb-1">
-                {% if user.user_type == '1' %}Painel Administrativo{% else %}Painel de Recepção{% endif %}
+                {% if user.user_type == '1' %}Visão Geral do Administrador{% else %}Painel de Atendimento{% endif %}
             </h2>
-            <p class="text-muted">Bem-vindo, <span class="text-primary fw-bold">{{ user.first_name }}</span>. O que deseja fazer?</p>
+            <p class="text-muted">Olá, {{ user.first_name }}. Bem-vindo de volta ao OdontoGestão.</p>
         </div>
     </div>
 
     <div class="row g-4">
         
-        <div class="col-md-6 col-lg-4 col-xl">
-            <div class="card h-100 shadow-sm border-0 hover-card">
-                <div class="card-body text-center p-4 d-flex flex-column">
-                    <div class="icon-box bg-success-subtle">
-                        <img src="{% static 'paciente.png' %}" alt="Pacientes">
+        <div class="col-12 col-sm-6 col-lg-4 col-xl">
+            <div class="card stat-card h-100 shadow-sm border-0">
+                <div class="card-body p-4 d-flex flex-column">
+                    <div class="icon-wrapper">
+                        <img src="{% static 'paciente.png' %}" alt="Ícone Paciente">
                     </div>
-                    <h5 class="fw-bold mb-2 text-dark">Pacientes</h5>
-                    <p class="text-muted small mb-4 flex-grow-1">Cadastros e prontuários.</p>
-                    <a href="{% url 'manage_paciente' %}" class="btn btn-success w-100 rounded-pill fw-bold">Ver Pacientes</a>
+                    <h5 class="card-title mb-2">Pacientes</h5>
+                    <p class="card-desc mb-4 flex-grow-1">Gerencie cadastros, histórico clínico e prontuários digitais.</p>
+                    <a href="{% url 'manage_paciente' %}" class="btn btn-primary btn-action fw-bold w-100">
+                        Acessar Base
+                    </a>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-6 col-lg-4 col-xl">
-            <div class="card h-100 shadow-sm border-0 hover-card">
-                <div class="card-body text-center p-4 d-flex flex-column">
-                    <div class="icon-box bg-warning-subtle">
-                        <img src="{% static 'calendario.png' %}" alt="Consultas">
+        <div class="col-12 col-sm-6 col-lg-4 col-xl">
+            <div class="card stat-card h-100 shadow-sm border-0">
+                <div class="card-body p-4 d-flex flex-column">
+                    <div class="icon-wrapper">
+                        <img src="{% static 'calendario.png' %}" alt="Ícone Agenda">
                     </div>
-                    <h5 class="fw-bold mb-2 text-dark">Consultas</h5>
-                    <p class="text-muted small mb-3 flex-grow-1">Agenda e novos atendimentos.</p>
+                    <h5 class="card-title mb-2">Agenda</h5>
+                    <p class="card-desc mb-4 flex-grow-1">Visualize horários e organize os atendimentos da clínica.</p>
                     <div class="d-grid gap-2 mt-auto">
-                        <a href="{% url 'add_consulta' %}" class="btn btn-warning btn-sm fw-bold rounded-pill text-dark">Novo Agendamento</a>
-                        <a href="{% url 'manage_consulta' %}" class="btn btn-outline-warning btn-sm rounded-pill text-dark fw-bold">Ver Histórico</a>
+                        <a href="{% url 'add_consulta' %}" class="btn btn-primary btn-action fw-bold">Novo Agendamento</a>
+                        <a href="{% url 'manage_consulta' %}" class="btn btn-outline-minimal btn-action fw-bold text-muted">Histórico Geral</a>
                     </div>
                 </div>
             </div>
         </div>
 
         {% if user.user_type == '1' %}
-        <div class="col-md-6 col-lg-4 col-xl">
-            <div class="card h-100 shadow-sm border-0 hover-card">
-                <div class="card-body text-center p-4 d-flex flex-column">
-                    <div class="icon-box bg-primary-subtle">
-                        <img src="{% static 'dentista.png' %}" alt="Dentistas">
+        <div class="col-12 col-sm-6 col-lg-4 col-xl">
+            <div class="card stat-card h-100 shadow-sm border-0">
+                <div class="card-body p-4 d-flex flex-column">
+                    <div class="icon-wrapper">
+                        <img src="{% static 'dentista.png' %}" alt="Ícone Dentista">
                     </div>
-                    <h5 class="fw-bold mb-2 text-dark">Dentistas</h5>
-                    <p class="text-muted small mb-4 flex-grow-1">Gerencie a equipe profissional.</p>
-                    <a href="{% url 'manage_dentista' %}" class="btn btn-primary w-100 rounded-pill fw-bold">Equipe Médica</a>
+                    <h5 class="card-title mb-2">Médicos</h5>
+                    <p class="card-desc mb-4 flex-grow-1">Configuração de escalas e especialidades da equipe.</p>
+                    <a href="{% url 'manage_dentista' %}" class="btn btn-primary btn-action fw-bold w-100">
+                        Gerenciar Equipe
+                    </a>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-6 col-lg-4 col-xl">
-            <div class="card h-100 shadow-sm border-0 hover-card">
-                <div class="card-body text-center p-4 d-flex flex-column">
-                    <div class="icon-box bg-danger-subtle">
-                        <img src="{% static 'recepcionista.png' %}" alt="Atendentes">
+        <div class="col-12 col-sm-6 col-lg-4 col-xl">
+            <div class="card stat-card h-100 shadow-sm border-0">
+                <div class="card-body p-4 d-flex flex-column">
+                    <div class="icon-wrapper">
+                        <img src="{% static 'procedimento.png' %}" alt="Ícone Serviços">
                     </div>
-                    <h5 class="fw-bold mb-2 text-dark">Recepção</h5>
-                    <p class="text-muted small mb-4 flex-grow-1">Acessos para atendentes.</p>
-                    <a href="{% url 'manage_recepcionista' %}" class="btn btn-danger w-100 rounded-pill fw-bold">Gerenciar Acessos</a>
+                    <h5 class="card-title mb-2">Serviços</h5>
+                    <p class="card-desc mb-4 flex-grow-1">Tabela de procedimentos, valores e tempos médios.</p>
+                    <a href="{% url 'manage_procedimento' %}" class="btn btn-primary btn-action fw-bold w-100">
+                        Configurar Tabela
+                    </a>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-6 col-lg-4 col-xl">
-            <div class="card h-100 shadow-sm border-0 hover-card">
-                <div class="card-body text-center p-4 d-flex flex-column">
-                    <div class="icon-box bg-info-subtle">
-                        <img src="{% static 'procedimento.png' %}" alt="Procedimentos">
+        <div class="col-12 col-sm-6 col-lg-4 col-xl">
+            <div class="card stat-card h-100 shadow-sm border-0">
+                <div class="card-body p-4 d-flex flex-column">
+                    <div class="icon-wrapper">
+                        <img src="{% static 'recepcionista.png' %}" alt="Ícone Recepção">
                     </div>
-                    <h5 class="fw-bold mb-2 text-dark">Serviços</h5>
-                    <p class="text-muted small mb-4 flex-grow-1">Tabela de preços e serviços.</p>
-                    <a href="{% url 'manage_procedimento' %}" class="btn btn-info w-100 rounded-pill text-white fw-bold">Preços</a>
+                    <h5 class="card-title mb-2">Usuários</h5>
+                    <p class="card-desc mb-4 flex-grow-1">Controle de acessos para o time administrativo.</p>
+                    <a href="{% url 'manage_recepcionista' %}" class="btn btn-primary btn-action fw-bold w-100">
+                        Configurar Acessos
+                    </a>
                 </div>
             </div>
         </div>
@@ -104,4 +183,5 @@
 
     </div>
 </div>
+
 {% endblock main_content %}

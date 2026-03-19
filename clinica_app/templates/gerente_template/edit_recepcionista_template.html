@@ -2,60 +2,192 @@
 {% load static %}
 
 {% block main_content %}
-<div class="container-fluid py-4">
-    <div class="row mb-4">
+<style>
+    :root {
+        --text-main: #0f172a;    /* Azul marinho quase preto (Contraste Máximo) */
+        --text-secondary: #334155; /* Cinza escuro para sub-títulos */
+        --accent: #2563eb;       /* Azul primário */
+        --border-saas: #cbd5e1;  /* Borda visível para inputs */
+    }
+
+    .page-container {
+        animation: fadeIn 0.5s ease-in-out;
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    /* Header da Página */
+    .title-main {
+        color: var(--text-main) !important;
+        font-weight: 800;
+        letter-spacing: -1px;
+    }
+
+    /* Card Estilizado */
+    .form-card {
+        background: #ffffff;
+        border-radius: 20px;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+    }
+
+    .card-body-saas {
+        padding: 40px;
+    }
+
+    /* Divisores de Seção */
+    .section-title {
+        color: var(--accent);
+        font-size: 0.9rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        border-bottom: 2px solid #f1f5f9;
+        padding-bottom: 10px;
+        margin-bottom: 25px;
+        display: flex;
+        align-items: center;
+    }
+
+    .section-title i {
+        margin-right: 10px;
+    }
+
+    /* Labels e Inputs de Alto Contraste */
+    .label-saas {
+        font-size: 0.85rem;
+        font-weight: 800;
+        color: var(--text-main);
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    .form-control-saas {
+        border: 2px solid var(--border-saas);
+        border-radius: 12px;
+        padding: 12px 16px;
+        font-size: 1rem;
+        color: var(--text-main);
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+
+    .form-control-saas:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        outline: none;
+    }
+
+    /* Botões */
+    .btn-update {
+        background-color: var(--accent);
+        color: white;
+        border: none;
+        padding: 14px 35px;
+        border-radius: 12px;
+        font-weight: 700;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+
+    .btn-update:hover {
+        background-color: #1d4ed8;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+        color: white;
+    }
+
+    .btn-back {
+        background-color: #f1f5f9;
+        color: var(--text-secondary);
+        border: none;
+        padding: 14px 25px;
+        border-radius: 12px;
+        font-weight: 700;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .btn-back:hover {
+        background-color: #e2e8f0;
+        color: var(--text-main);
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(15px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<div class="container-fluid py-5 page-container">
+    
+    <div class="row mb-5 align-items-center">
         <div class="col-12">
-            <h2 class="fw-bold mb-0">Editar Recepcionista</h2>
-            <p class="text-muted">Atualize os dados de <strong>{{ recepcionista.admin.first_name }}</strong>.</p>
+            <h1 class="title-main mb-2" style="font-size: 2.5rem;">Editar Recepcionista</h1>
+            <p class="fs-5" style="color: var(--text-secondary);">
+                Atualizando o cadastro de: <span class="fw-bold text-primary">{{ recepcionista.admin.first_name }} {{ recepcionista.admin.last_name }}</span>
+            </p>
         </div>
     </div>
 
-    <div class="card shadow-sm border-0 rounded-4">
-        <div class="card-body p-4">
+    <div class="form-card">
+        <div class="card-body-saas">
             <form action="{% url 'edit_recepcionista_save' %}" method="post">
                 {% csrf_token %}
                 
                 <input type="hidden" name="recepcionista_id" value="{{ recepcionista.admin.id }}">
 
-                <h5 class="text-warning fw-bold mb-4 border-bottom pb-2">Informações Pessoais</h5>
-                <div class="row g-3 mb-4">
+                <div class="section-title">
+                    <i class="fas fa-user-circle"></i> Informações Pessoais
+                </div>
+                
+                <div class="row g-4 mb-5">
                     <div class="col-md-8">
-                        <label class="form-label small fw-bold">Nome Completo</label>
-                        <input type="text" name="nome_completo" class="form-control" value="{{ recepcionista.admin.first_name }}" required>
+                        <label class="label-saas">Nome Completo</label>
+                        <input type="text" name="nome_completo" class="form-control form-control-saas" 
+                               value="{{ recepcionista.admin.first_name }} {{ recepcionista.admin.last_name }}" required>
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label small fw-bold">CPF</label>
-                        <input type="text" name="cpf" class="form-control cpf" placeholder="529.982.247-25" value="{{ recepcionista.cpf }}">
+                        <label class="label-saas">CPF</label>
+                        <input type="text" name="cpf" class="form-control form-control-saas cpf" 
+                               placeholder="000.000.000-00" value="{{ recepcionista.cpf }}">
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label small fw-bold">Telefone</label>
-                        <input type="text" name="telefone" class="form-control phone" value="{{ recepcionista.telefone }}">
+                        <label class="label-saas">Telefone / WhatsApp</label>
+                        <input type="text" name="telefone" class="form-control form-control-saas phone" 
+                               value="{{ recepcionista.telefone }}">
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label small fw-bold">Data de Nascimento</label>
-                        <input type="date" name="data_nasc" class="form-control" value="{{ recepcionista.data_nascimento|date:'Y-m-d' }}">
+                        <label class="label-saas">Data de Nascimento</label>
+                        <input type="date" name="data_nasc" class="form-control form-control-saas" 
+                               value="{{ recepcionista.data_nascimento|date:'Y-m-d' }}">
                     </div>
                 </div>
 
-                <h5 class="text-warning fw-bold mb-4 border-bottom pb-2">Credenciais & Endereço</h5>
-                <div class="row g-3">
+                <div class="section-title">
+                    <i class="fas fa-shield-alt"></i> Credenciais & Localização
+                </div>
+                
+                <div class="row g-4 mb-4">
                     <div class="col-md-12">
-                        <label class="form-label small fw-bold">E-mail (Login)</label>
-                        <input type="email" name="email" class="form-control" value="{{ recepcionista.admin.email }}" required>
+                        <label class="label-saas">E-mail (Acesso ao Sistema)</label>
+                        <input type="email" name="email" class="form-control form-control-saas" 
+                               value="{{ recepcionista.admin.email }}" required>
                     </div>
                     <div class="col-md-12">
-                        <label class="form-label small fw-bold">Endereço Residencial</label>
-                        <textarea name="endereco" class="form-control" rows="2">{{ recepcionista.endereco|default:'' }}</textarea>
+                        <label class="label-saas">Endereço Residencial Completo</label>
+                        <textarea name="endereco" class="form-control form-control-saas" rows="3">{{ recepcionista.endereco|default:'' }}</textarea>
                     </div>
                 </div>
 
-                <div class="row mt-5">
-                    <div class="col-12 text-end">
-                        <a href="{% url 'manage_recepcionista' %}" class="btn btn-light px-4 me-2">Voltar</a>
-                        <button type="submit" class="btn btn-warning shadow-sm px-5 fw-bold text-dark">
-                            <i class="fas fa-sync-alt me-2"></i> Atualizar Cadastro
-                        </button>
-                    </div>
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-center border-top pt-5 mt-4 gap-3">
+                    <a href="{% url 'manage_recepcionista' %}" class="btn btn-back px-4">
+                        <i class="fas fa-arrow-left me-2"></i> Voltar à Listagem
+                    </a>
+                    <button type="submit" class="btn btn-update px-5">
+                        <i class="fas fa-save me-2"></i> Atualizar Cadastro
+                    </button>
                 </div>
             </form>
         </div>
@@ -66,6 +198,7 @@
 {% block custom_js %}
 <script>
     $(document).ready(function(){
+        // Garante que o contraste das máscaras não interfira na leitura
         $('.cpf').mask('000.000.000-00');
         $('.phone').mask('(00) 0 0000-0000');
     });

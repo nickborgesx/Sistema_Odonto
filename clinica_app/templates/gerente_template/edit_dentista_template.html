@@ -2,78 +2,212 @@
 {% load static %}
 
 {% block main_content %}
-<div class="container-fluid py-4">
-    <div class="row mb-4">
-        <div class="col-12">
-            <h2 class="fw-bold mb-0">Editar Profissional</h2>
-            <p class="text-muted">Atualizando dados do(a) **Dr(a). {{ usuario_edit.first_name }}**</p>
+<style>
+    :root {
+        --text-main: #0f172a;    /* Preto Grafite para leitura perfeita */
+        --text-secondary: #334155; /* Cinza escuro para apoio */
+        --accent: #2563eb;       /* Azul OdontoGestão */
+        --border-saas: #cbd5e1;  /* Borda reforçada */
+    }
+
+    .page-container {
+        animation: fadeIn 0.5s ease-in-out;
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+
+    /* Títulos Principais */
+    .title-main {
+        color: var(--text-main) !important;
+        font-weight: 800;
+        letter-spacing: -1px;
+    }
+
+    /* Card de Edição */
+    .form-card {
+        background: #ffffff;
+        border-radius: 20px;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+    }
+
+    .card-header-saas {
+        background: #f8fafc;
+        padding: 24px 35px;
+        border-bottom: 2px solid #f1f5f9;
+    }
+
+    .card-body-saas {
+        padding: 40px;
+    }
+
+    /* Divisores de Seção Nítidos */
+    .section-divider {
+        color: var(--text-main);
+        font-size: 0.9rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        border-bottom: 2px solid #e2e8f0;
+        padding-bottom: 8px;
+        margin-bottom: 25px;
+        margin-top: 30px;
+    }
+
+    /* Labels e Inputs com Contraste Máximo */
+    .label-saas {
+        font-size: 0.85rem;
+        font-weight: 800;
+        color: var(--text-main);
+        margin-bottom: 10px;
+        display: block;
+    }
+
+    .form-control-saas {
+        border: 2px solid var(--border-saas);
+        border-radius: 12px;
+        padding: 12px 18px;
+        font-size: 1rem;
+        color: var(--text-main);
+        font-weight: 600;
+        background-color: #ffffff;
+        transition: all 0.2s ease;
+    }
+
+    .form-control-saas:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        outline: none;
+    }
+
+    /* Botões */
+    .btn-save-saas {
+        background-color: var(--accent);
+        color: white;
+        border: none;
+        padding: 14px 40px;
+        border-radius: 12px;
+        font-weight: 700;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+
+    .btn-save-saas:hover {
+        background-color: #1d4ed8;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(37, 99, 235, 0.3);
+        color: white;
+    }
+
+    .btn-cancel-saas {
+        background-color: #f1f5f9;
+        color: var(--text-secondary);
+        border: none;
+        padding: 14px 25px;
+        border-radius: 12px;
+        font-weight: 700;
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .btn-cancel-saas:hover {
+        background-color: #e2e8f0;
+        color: var(--text-main);
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(15px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<div class="container-fluid py-5 page-container">
+    
+    <div class="row mb-5">
+        <div class="col-12 text-center text-lg-start">
+            <h1 class="title-main mb-2" style="font-size: 2.6rem;">Editar Profissional</h1>
+            <p class="fs-5" style="color: var(--text-secondary); font-weight: 500;">
+                Modificando registro do(a) <span class="text-primary fw-bold">Dr(a). {{ usuario_edit.first_name }} {{ usuario_edit.last_name }}</span>
+            </p>
         </div>
     </div>
 
-    <div class="card shadow-sm border-0 rounded-4">
-        <div class="card-header bg-warning py-3 rounded-top-4">
-            <h5 class="mb-0 text-dark fw-bold">
-                <i class="fas fa-user-md me-2"></i>Formulário de Edição
-            </h5>
+    <div class="form-card">
+        <div class="card-header-saas d-flex align-items-center">
+            <div class="bg-primary text-white p-2 rounded-3 me-3" style="width: 42px; height: 42px; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-user-md fs-4"></i>
+            </div>
+            <h5 class="mb-0 fw-bold text-dark">Dados Cadastrais e Profissionais</h5>
         </div>
-        
-        <form action="{% url 'edit_dentista_save' %}" method="post" class="card-body p-4">
+
+        <form action="{% url 'edit_dentista_save' %}" method="post" class="card-body-saas">
             {% csrf_token %}
             
             <input type="hidden" name="dentista_id" value="{{ usuario_edit.id }}">
 
-            <h5 class="text-secondary border-bottom pb-2 mb-3">Informações Pessoais</h5>
-            <div class="row">
-                <div class="col-md-7 mb-3">
-                    <label class="fw-bold small">Nome Completo</label>
-                    <input type="text" name="nome_completo" class="form-control" value="{{ usuario_edit.first_name }}" required>
+            <div class="section-divider mt-0">
+                <i class="fas fa-info-circle me-2"></i>Informações Principais
+            </div>
+            
+            <div class="row g-4 mb-4">
+                <div class="col-md-7">
+                    <label class="label-saas">Nome Completo do Dentista *</label>
+                    <input type="text" name="nome_completo" class="form-control form-control-saas" 
+                           value="{{ usuario_edit.first_name }} {{ usuario_edit.last_name }}" required>
                 </div>
-                <div class="col-md-5 mb-3">
-                    <label class="fw-bold small">E-mail (Login)</label>
-                    <input type="email" name="email" class="form-control" value="{{ usuario_edit.email }}" required>
+                <div class="col-md-5">
+                    <label class="label-saas">E-mail de Acesso (Login) *</label>
+                    <input type="email" name="email" class="form-control form-control-saas" 
+                           value="{{ usuario_edit.email }}" required>
                 </div>
             </div>
 
-            <div class="row">
-                <div class="col-md-3 mb-3">
-                    <label class="fw-bold small">CPF</label>
-                    <input type="text" name="cpf" class="form-control cpf" value="{{ dentista.cpf }}">
+            <div class="row g-4 mb-4">
+                <div class="col-md-3">
+                    <label class="label-saas">CPF</label>
+                    <input type="text" name="cpf" class="form-control form-control-saas cpf" 
+                           value="{{ dentista.cpf }}">
                 </div>
-                <div class="col-md-3 mb-3">
-                    <label class="fw-bold small">CRO</label>
-                    <input type="text" name="cro" class="form-control" value="{{ dentista.cro }}" required>
+                <div class="col-md-3">
+                    <label class="label-saas">Registro CRO *</label>
+                    <input type="text" name="cro" class="form-control form-control-saas" 
+                           value="{{ dentista.cro }}" required placeholder="Ex: MG-12345">
                 </div>
-                <div class="col-md-3 mb-3">
-                    <label class="fw-bold small">Telefone</label>
-                    <input type="text" name="telefone" class="form-control phone" value="{{ dentista.telefone }}">
+                <div class="col-md-3">
+                    <label class="label-saas">WhatsApp / Telefone</label>
+                    <input type="text" name="telefone" class="form-control form-control-saas phone" 
+                           value="{{ dentista.telefone }}">
                 </div>
-                <div class="col-md-3 mb-3">
-                    <label class="fw-bold">Data de Nascimento</label>
-                    <input type="date" name="data_nascimento" class="form-control" value="{{ dentista.data_nascimento|date:'Y-m-d' }}">
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-md-12 mb-3">
-                    <label class="fw-bold small">Especialidade</label>
-                    <input type="text" name="especialidade" class="form-control" value="{{ dentista.especialidade }}" required placeholder="Ex: Ortodontia, Implantodontia...">
+                <div class="col-md-3">
+                    <label class="label-saas">Data de Nascimento</label>
+                    <input type="date" name="data_nascimento" class="form-control form-control-saas" 
+                           value="{{ dentista.data_nascimento|date:'Y-m-d' }}">
                 </div>
             </div>
 
-            <h5 class="text-secondary border-bottom pb-2 mb-3 mt-4">Localização</h5>
-            <div class="row">
-                <div class="col-md-12 mb-4">
-                    <label class="fw-bold small">Endereço Completo</label>
-                    <textarea name="address" class="form-control" rows="2">{{ dentista.address }}</textarea>
+            <div class="section-divider">
+                <i class="fas fa-tooth me-2"></i>Especialização e Localização
+            </div>
+
+            <div class="row g-4 mb-4">
+                <div class="col-md-12">
+                    <label class="label-saas">Especialidade Principal *</label>
+                    <input type="text" name="especialidade" class="form-control form-control-saas" 
+                           value="{{ dentista.especialidade }}" required placeholder="Ex: Ortodontia, Implantodontia...">
+                </div>
+                <div class="col-md-12">
+                    <label class="label-saas">Endereço Residencial ou de Consultório</label>
+                    <textarea name="address" class="form-control form-control-saas" rows="3">{{ dentista.address }}</textarea>
                 </div>
             </div>
 
-            <div class="d-flex justify-content-between align-items-center border-top pt-4">
-                <a href="{% url 'manage_dentista' %}" class="btn btn-light px-4 border">
-                    <i class="fas fa-times me-2"></i>Cancelar
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-center border-top pt-5 mt-4 gap-3">
+                <a href="{% url 'manage_dentista' %}" class="btn btn-cancel-saas px-4">
+                    <i class="fas fa-arrow-left me-2"></i> Descartar Alterações
                 </a>
-                <button type="submit" class="btn btn-warning px-5 fw-bold text-dark shadow-sm">
-                    <i class="fas fa-save me-2"></i>Salvar Alterações
+                <button type="submit" class="btn btn-save-saas px-5">
+                    <i class="fas fa-check-circle me-2"></i> Salvar Registro do Profissional
                 </button>
             </div>
         </form>
@@ -84,6 +218,7 @@
 {% block custom_js %}
 <script>
     $(document).ready(function(){
+        // Máscaras com foco em legibilidade
         $('.cpf').mask('000.000.000-00');
         $('.phone').mask('(00) 0 0000-0000');
     });

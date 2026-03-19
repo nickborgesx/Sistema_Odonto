@@ -3,69 +3,205 @@
 
 {% block main_content %}
 <style>
-    .hover-card {
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        border-radius: 15px !important;
-        overflow: hidden;
+    :root {
+        --text-main: #0f172a;    /* Azul marinho quase preto (Contraste Máximo) */
+        --text-secondary: #334155; /* Cinza escuro para descrições */
+        --accent: #2563eb;
+        --accent-soft: #eff6ff;
+        --border-saas: #cbd5e1;
     }
-    .hover-card:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 10px 20px rgba(0,0,0,0.12) !important;
+
+    .page-container {
+        animation: fadeIn 0.5s ease-in-out;
     }
-    .icon-box {
-        width: 70px; height: 70px;
-        display: flex; align-items: center; justify-content: center;
-        border-radius: 15px; margin: 0 auto 20px; padding: 10px;
+
+    /* Títulos de Alto Contraste */
+    .title-main {
+        color: var(--text-main) !important;
+        font-weight: 800;
+        letter-spacing: -1px;
     }
-    .icon-box img { max-width: 100%; max-height: 100%; object-fit: contain; }
+
+    .welcome-text {
+        color: var(--text-secondary) !important;
+        font-size: 1.1rem;
+        font-weight: 500;
+    }
+
+    /* Barra de Busca SaaS */
+    .search-wrapper {
+        background: #ffffff;
+        border: 2px solid var(--border-saas);
+        border-radius: 14px;
+        transition: all 0.3s ease;
+    }
+
+    .search-wrapper:focus-within {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+    }
+
+    .search-input {
+        border: none;
+        padding: 14px 20px;
+        font-size: 1rem;
+        color: var(--text-main);
+        font-weight: 500;
+    }
+
+    .search-input::placeholder {
+        color: #94a3b8;
+    }
+
+    /* Cards de Ação */
+    .action-card {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border-radius: 20px !important;
+        border: 1px solid rgba(0, 0, 0, 0.08) !important;
+        background: #ffffff;
+    }
+
+    .action-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+        border-color: var(--accent) !important;
+    }
+
+    .icon-box-saas {
+        width: 80px;
+        height: 80px;
+        background-color: var(--accent-soft);
+        border-radius: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        transition: all 0.3s ease;
+    }
+
+    .action-card:hover .icon-box-saas {
+        background-color: var(--accent);
+    }
+
+    .action-card:hover .icon-box-saas img {
+        filter: brightness(0) invert(1);
+    }
+
+    .card-title-saas {
+        color: var(--text-main) !important;
+        font-weight: 800;
+        font-size: 1.3rem;
+    }
+
+    .card-text-saas {
+        color: var(--text-secondary) !important;
+        font-weight: 500;
+        line-height: 1.5;
+    }
+
+    /* Botões */
+    .btn-saas-primary {
+        background-color: var(--accent);
+        color: #ffffff;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 10px;
+        font-weight: 700;
+        transition: all 0.2s;
+    }
+
+    .btn-saas-primary:hover {
+        background-color: #1d4ed8;
+        color: #ffffff;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    }
+
+    .btn-saas-outline {
+        background-color: transparent;
+        color: var(--accent);
+        border: 2px solid var(--accent);
+        padding: 10px 20px;
+        border-radius: 10px;
+        font-weight: 700;
+        transition: all 0.2s;
+    }
+
+    .btn-saas-outline:hover {
+        background-color: var(--accent-soft);
+        color: #1d4ed8;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(15px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
 </style>
 
-<div class="container-fluid py-4 px-3">
+<div class="container-fluid py-5 px-4 page-container">
+    
     <div class="row mb-5 align-items-center">
-        <div class="col-md-6">
-            <h2 class="fw-bold text-dark mb-1">Painel de Recepção</h2>
-            <p class="text-muted mb-0">Bem-vindo, <span class="text-primary fw-bold">{{ user.first_name }}</span>. O que deseja fazer hoje?</p>
+        <div class="col-lg-6">
+            <h1 class="title-main mb-2" style="font-size: 2.8rem;">Painel de Recepção</h1>
+            <p class="welcome-text mb-0">
+                Olá, <span class="text-primary fw-bold">{{ user.first_name }}</span>. Como podemos ajudar hoje?
+            </p>
         </div>
         
-        <div class="col-md-6">
-            <form method="GET" action="{% url 'manage_paciente' %}" class="d-flex shadow-sm rounded bg-white overflow-hidden" style="border: 1px solid #e9ecef;">
-                <input type="text" name="q" class="form-control border-0" placeholder="Buscar paciente pelo nome ou CPF..." value="{{ request.GET.q }}" style="box-shadow: none; padding: 12px 20px;">
-                <button class="btn btn-white border-0 bg-white px-3" type="submit">
-                    <img src="{% static 'procurar.png' %}" alt="Buscar" style="width: 20px; height: 20px;">
-                </button>
+        <div class="col-lg-6 mt-4 mt-lg-0">
+            <form method="GET" action="{% url 'manage_paciente' %}">
+                <div class="search-wrapper d-flex align-items-center px-2 shadow-sm">
+                    <i class="fas fa-search text-muted ms-3 fs-5"></i>
+                    <input type="text" name="q" class="form-control search-input flex-grow-1" 
+                           placeholder="Buscar paciente pelo nome ou CPF..." value="{{ request.GET.q }}">
+                    <button class="btn btn-primary rounded-3 px-4 py-2 ms-2 my-1 fw-bold" type="submit">
+                        Pesquisar
+                    </button>
+                </div>
             </form>
         </div>
     </div>
 
     <div class="row g-4 justify-content-center">
         
-        <div class="col-md-6 col-lg-4">
-            <div class="card h-100 shadow-sm border-0 hover-card">
-                <div class="card-body text-center p-4 d-flex flex-column">
-                    <div class="icon-box bg-success-subtle">
-                        <img src="{% static 'paciente.png' %}" alt="Pacientes">
+        <div class="col-md-6 col-xl-4">
+            <div class="card h-100 shadow-sm action-card">
+                <div class="card-body text-center p-5 d-flex flex-column">
+                    <div class="icon-box-saas">
+                        <img src="{% static 'paciente.png' %}" alt="Pacientes" style="width: 35px;">
                     </div>
-                    <h5 class="fw-bold mb-2 text-dark">Pacientes</h5>
-                    <p class="text-muted small mb-4 flex-grow-1">Gestão de cadastros e novos pacientes.</p>
+                    <h3 class="card-title-saas mb-3">Gestão de Pacientes</h3>
+                    <p class="card-text-saas mb-4 flex-grow-1">
+                        Cadastre novos pacientes ou consulte prontuários e históricos existentes no sistema.
+                    </p>
                     <div class="d-grid gap-2 mt-auto">
-                        <a href="{% url 'add_paciente' %}" class="btn btn-success btn-sm fw-bold rounded-pill">Novo Cadastro</a>
-                        <a href="{% url 'manage_paciente' %}" class="btn btn-outline-success btn-sm rounded-pill fw-bold">Ver Todos</a>
+                        <a href="{% url 'add_paciente' %}" class="btn btn-saas-primary">
+                            <i class="fas fa-user-plus me-2"></i> Novo Cadastro
+                        </a>
+                        <a href="{% url 'manage_paciente' %}" class="btn btn-saas-outline">
+                            Ver Todos os Pacientes
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-6 col-lg-4">
-            <div class="card h-100 shadow-sm border-0 hover-card">
-                <div class="card-body text-center p-4 d-flex flex-column">
-                    <div class="icon-box bg-warning-subtle">
-                        <img src="{% static 'calendario.png' %}" alt="Consultas">
+        <div class="col-md-6 col-xl-4">
+            <div class="card h-100 shadow-sm action-card">
+                <div class="card-body text-center p-5 d-flex flex-column">
+                    <div class="icon-box-saas">
+                        <img src="{% static 'calendario.png' %}" alt="Consultas" style="width: 35px;">
                     </div>
-                    <h5 class="fw-bold mb-2 text-dark">Consultas</h5>
-                    <p class="text-muted small mb-3 flex-grow-1">Agenda do dia e novos agendamentos.</p>
+                    <h3 class="card-title-saas mb-3">Agenda & Consultas</h3>
+                    <p class="card-text-saas mb-4 flex-grow-1">
+                        Organize os horários da clínica e realize novos agendamentos para os dentistas.
+                    </p>
                     <div class="d-grid gap-2 mt-auto">
-                        <a href="{% url 'add_consulta' %}" class="btn btn-warning btn-sm fw-bold rounded-pill text-dark">Novo Agendamento</a>
-                        <a href="{% url 'manage_consulta' %}" class="btn btn-outline-warning btn-sm rounded-pill text-dark fw-bold">Ver Agenda</a>
+                        <a href="{% url 'add_consulta' %}" class="btn btn-saas-primary">
+                            <i class="fas fa-calendar-plus me-2"></i> Novo Agendamento
+                        </a>
+                        <a href="{% url 'manage_consulta' %}" class="btn btn-saas-outline">
+                            Visualizar Agenda
+                        </a>
                     </div>
                 </div>
             </div>

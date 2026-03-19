@@ -2,69 +2,215 @@
 {% load static %}
 
 {% block main_content %}
-<div class="container-fluid">
-    <div class="row mb-4 align-items-center">
-        <div class="col-md-6">
-            <h2 class="fw-bold mb-0">Listagem de Pacientes</h2>
-            <p class="text-muted">Consulte os dados e históricos médicos.</p>
+<style>
+    .page-container {
+        animation: fadeIn 0.5s ease-in-out;
+    }
+
+    /* Barra de Busca SaaS */
+    .search-wrapper {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        transition: all 0.3s ease;
+    }
+
+    .search-wrapper:focus-within {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 4px var(--accent-soft);
+    }
+
+    .search-input {
+        border: none;
+        padding: 12px 20px;
+        font-size: 0.95rem;
+        background: transparent;
+    }
+
+    .search-input:focus {
+        outline: none;
+        box-shadow: none;
+    }
+
+    /* Card de Conteúdo */
+    .content-card {
+        background: var(--surface);
+        border-radius: 16px;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+    }
+
+    /* Tabela Customizada */
+    .table-custom thead th {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-weight: 700;
+        color: var(--muted);
+        padding: 16px 24px;
+        background: #f8fafc;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .table-custom td {
+        padding: 20px 24px;
+        vertical-align: middle;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+    }
+
+    /* Avatar do Paciente */
+    .patient-avatar {
+        width: 44px;
+        height: 44px;
+        background-color: var(--accent-soft);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+    }
+
+    tr:hover .patient-avatar {
+        background-color: var(--accent);
+    }
+
+    .patient-avatar img {
+        width: 20px;
+        transition: all 0.3s ease;
+    }
+
+    tr:hover .patient-avatar img {
+        filter: brightness(0) invert(1);
+    }
+
+    /* Badge de Gênero */
+    .badge-soft {
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 4px 10px;
+        border-radius: 8px;
+        background-color: #f1f5f9;
+        color: #475569;
+    }
+
+    /* Estilo do Histórico */
+    .history-text {
+        font-size: 0.85rem;
+        color: #64748b;
+        line-height: 1.5;
+        max-width: 400px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    /* Botão Ficha */
+    .btn-ficha {
+        color: var(--accent);
+        background: var(--accent-soft);
+        border: 1.5px solid transparent;
+        padding: 8px 18px;
+        border-radius: 10px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        transition: all 0.2s;
+    }
+
+    .btn-ficha:hover {
+        background: var(--accent);
+        color: white;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<div class="container-fluid py-4 page-container">
+    
+    <div class="row mb-5 align-items-center">
+        <div class="col-lg-6">
+            <h2 class="fw-bold text-dark mb-1">Listagem de Pacientes</h2>
+            <p class="text-muted small mb-0">Consulte dados cadastrais e prontuários médicos.</p>
         </div>
-        <div class="col-md-6">
-            <form method="GET" action="{% url 'dentista_manage_paciente' %}" class="d-flex shadow-sm rounded bg-white overflow-hidden" style="border: 1px solid #e9ecef;">
-                <input type="text" name="q" class="form-control border-0" placeholder="Buscar por nome ou CPF..." value="{{ query|default:'' }}" style="box-shadow: none; padding: 12px 20px;">
-                <button class="btn btn-white border-0 bg-white px-3" type="submit">
-                    <img src="{% static 'procurar.png' %}" alt="Buscar" style="width: 20px; height: 20px;">
-                </button>
+        <div class="col-lg-6 mt-3 mt-lg-0">
+            <form method="GET" action="{% url 'dentista_manage_paciente' %}">
+                <div class="search-wrapper d-flex align-items-center px-2 bg-white shadow-sm">
+                    <i class="fas fa-search text-muted ms-3"></i>
+                    <input type="text" name="q" class="form-control search-input flex-grow-1" 
+                           placeholder="Buscar por nome ou CPF..." value="{{ query|default:'' }}">
+                    <button class="btn btn-primary rounded-3 px-4 py-2 ms-2 my-1 fw-bold" type="submit" style="font-size: 0.85rem;">
+                        Pesquisar
+                    </button>
+                </div>
             </form>
         </div>
     </div>
 
-    <div class="card shadow-sm border-0">
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="bg-light text-secondary">
-                        <tr>
-                            <th class="ps-4" style="width: 25%;">Paciente</th>
-                            <th style="width: 15%;">Contato / Gênero</th>
-                            <th style="width: 40%;">Histórico Médico</th>
-                            <th class="text-end pe-4">Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for paciente in pacientes %}
-                        <tr>
-                            <td class="ps-4">
-                                <div class="fw-bold text-primary">{{ paciente.admin.first_name }} {{ paciente.admin.last_name }}</div>
-                                <div class="text-muted small">CPF: {{ paciente.cpf|default:"---" }}</div>
-                                <div class="text-muted small">Nasc: {{ paciente.data_nascimento|date:"d/m/Y"|default:"--" }}</div>
-                            </td>
-                            <td>
-                                <div class="small mb-1"><i class="fas fa-phone-alt"></i> {{ paciente.telefone|default:"Sem tel." }}</div>
-                                <span class="badge rounded-pill bg-light text-dark border">
-                                    {{ paciente.genero }}
-                                </span>
-                            </td>
-                            <td>
-                                <div class="text-truncate" style="max-width: 350px;" title="{{ paciente.historico_medico }}">
-                                    <small class="text-secondary">{{ paciente.historico_medico|default:"Nenhum histórico registrado." }}</small>
+    <div class="content-card">
+        <div class="table-responsive">
+            <table class="table table-custom mb-0">
+                <thead>
+                    <tr>
+                        <th>Paciente / Identificação</th>
+                        <th>Contato / Gênero</th>
+                        <th>Histórico Médico</th>
+                        <th class="text-end">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for paciente in pacientes %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="patient-avatar me-3">
+                                    <img src="{% static 'utilizador.png' %}" alt="Paciente">
                                 </div>
-                            </td>
-                            <td class="text-end pe-4">
-                                <a href="{% url 'view_paciente' paciente.id %}" class="btn btn-sm btn-outline-primary px-3">
-                                    Ver Ficha
-                                </a>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="4" class="text-center py-5">
-                                <p class="text-muted mb-0">Nenhum paciente encontrado.</p>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+                                <div>
+                                    <div class="fw-bold text-dark" style="font-size: 1rem;">
+                                        {{ paciente.admin.first_name }} {{ paciente.admin.last_name }}
+                                    </div>
+                                    <div class="text-muted small">
+                                        CPF: <span class="fw-medium">{{ paciente.cpf|default:"---" }}</span>
+                                    </div>
+                                    <div class="text-muted extra-small" style="font-size: 0.75rem;">
+                                        Nasc: {{ paciente.data_nascimento|date:"d/m/Y"|default:"--" }}
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="text-dark fw-medium mb-1" style="font-size: 0.85rem;">
+                                <i class="fas fa-phone-alt me-1 text-muted small"></i> {{ paciente.telefone|default:"Sem tel." }}
+                            </div>
+                            <span class="badge-soft">
+                                {{ paciente.genero|default:"--" }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="history-text" title="{{ paciente.historico_medico }}">
+                                {{ paciente.historico_medico|default:"Sem observações registradas." }}
+                            </div>
+                        </td>
+                        <td class="text-end">
+                            <a href="{% url 'view_paciente' paciente.id %}" class="btn btn-ficha">
+                                <i class="far fa-file-alt me-1"></i> Abrir Ficha
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center py-5">
+                            <img src="{% static 'utilizador.png' %}" style="width: 48px; opacity: 0.1; margin-bottom: 15px;">
+                            <p class="text-muted mb-0">Nenhum paciente encontrado para esta consulta.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
 </div>

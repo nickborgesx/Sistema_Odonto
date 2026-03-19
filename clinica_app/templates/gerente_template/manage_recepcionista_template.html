@@ -2,79 +2,233 @@
 {% load static %}
 
 {% block main_content %}
-<div class="container-fluid">
-    <div class="row mb-4 align-items-center">
+<style>
+    .page-container {
+        animation: fadeIn 0.5s ease-in-out;
+    }
+
+    /* Cabeçalho Profissional */
+    .page-header {
+        margin-bottom: 2rem;
+    }
+
+    .btn-add {
+        background-color: var(--accent);
+        color: white;
+        border: none;
+        padding: 10px 24px;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+
+    .btn-add:hover {
+        background-color: var(--accent-dark);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3);
+        color: white;
+    }
+
+    /* Card Principal */
+    .content-card {
+        background: var(--surface);
+        border-radius: 16px;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+    }
+
+    /* Estilização da Tabela */
+    .table-custom thead {
+        background-color: #f8fafc;
+    }
+
+    .table-custom thead th {
+        font-family: 'Poppins', sans-serif;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-weight: 700;
+        color: var(--muted);
+        border-bottom: 1px solid var(--border);
+        padding: 16px 24px;
+    }
+
+    .table-custom tbody tr {
+        transition: background-color 0.2s ease;
+    }
+
+    .table-custom tbody tr:hover {
+        background-color: #f8fafc;
+    }
+
+    .table-custom td {
+        padding: 18px 24px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+        vertical-align: middle;
+    }
+
+    /* Avatar da Recepcionista */
+    .staff-avatar {
+        width: 44px;
+        height: 44px;
+        background-color: var(--accent-soft);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+    }
+
+    tr:hover .staff-avatar {
+        background-color: var(--accent);
+    }
+
+    .staff-avatar img {
+        width: 20px;
+        transition: all 0.3s ease;
+    }
+
+    tr:hover .staff-avatar img {
+        filter: brightness(0) invert(1);
+    }
+
+    /* Detalhes de Texto */
+    .text-truncate-custom {
+        max-width: 180px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: block;
+    }
+
+    /* Botões de Ação */
+    .btn-action-edit {
+        color: #64748b;
+        background: transparent;
+        border: 1.5px solid #e2e8f0;
+        padding: 6px 14px;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        transition: all 0.2s;
+    }
+
+    .btn-action-edit:hover {
+        border-color: #fbbf24;
+        color: #d97706;
+        background: white;
+    }
+
+    .btn-action-delete {
+        color: #ef4444;
+        background: transparent;
+        border: 1.5px solid transparent;
+        padding: 6px 14px;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        transition: all 0.2s;
+    }
+
+    .btn-action-delete:hover {
+        background: #fef2f2;
+        color: #b91c1c;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<div class="container-fluid py-4 page-container">
+    
+    <div class="row page-header align-items-center">
         <div class="col-md-6">
-            <h2 class="fw-bold mb-0">Gestão de Recepcionistas</h2>
-            <p class="text-muted">Visualize e gerencie a equipe de atendimento e recepção da clínica.</p>
+            <h2 class="fw-bold text-dark mb-1">Equipe de Recepção</h2>
+            <p class="text-muted small mb-0">Gerencie os acessos e informações do time de atendimento.</p>
         </div>
-        <div class="col-md-6 text-md-end">
-            <a href="{% url 'add_recepcionista' %}" class="btn btn-danger shadow-sm px-4">
-                <img src="{% static 'adicionar.png' %}" style="width: 18px; margin-right: 5px; filter: brightness(0) invert(1);"> Nova Atendente
+        <div class="col-md-6 text-md-end mt-3 mt-md-0">
+            <a href="{% url 'add_recepcionista' %}" class="btn btn-add">
+                <i class="fas fa-plus me-2"></i> Nova Atendente
             </a>
         </div>
     </div>
 
-    <div class="card shadow-sm border-0">
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="bg-light text-secondary">
-                        <tr>
-                            <th class="ps-4">Atendente / CPF</th>
-                            <th>Contato / E-mail</th>
-                            <th>Nascimento / Endereço</th>
-                            <th class="text-end pe-4">Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for recep in recepcionistas %}
-                        <tr>
-                            <td class="ps-4">
-                                <div class="d-flex align-items-center">
-                                    <div class="icon-box bg-danger-subtle rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
-                                        <img src="{% static 'recepcionista.png' %}" style="width: 20px;">
+    <div class="content-card">
+        <div class="table-responsive">
+            <table class="table table-custom mb-0">
+                <thead>
+                    <tr>
+                        <th>Atendente / Documento</th>
+                        <th>Contato e Acesso</th>
+                        <th>Informações Adicionais</th>
+                        <th class="text-end">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for recep in recepcionistas %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="staff-avatar me-3">
+                                    <img src="{% static 'recepcionista.png' %}" alt="Ícone">
+                                </div>
+                                <div>
+                                    <div class="fw-bold text-dark" style="font-size: 0.95rem;">
+                                        {{ recep.admin.first_name }} {{ recep.admin.last_name }}
                                     </div>
-                                    <div>
-                                        <div class="fw-bold text-danger">{{ recep.admin.first_name }} {{ recep.admin.last_name }}</div>
-                                        <small class="text-muted">CPF: {{ recep.cpf|default:"---" }}</small>
+                                    <div class="text-muted" style="font-size: 0.8rem;">
+                                        CPF: <span class="fw-medium">{{ recep.cpf|default:"---" }}</span>
                                     </div>
                                 </div>
-                            </td>
-                            <td>
-                                <div class="small fw-bold">{{ recep.admin.email }}</div>
-                                <div class="text-muted small">{{ recep.telefone|default:"Sem telefone" }}</div>
-                            </td>
-                            <td>
-                                <div class="text-dark small">
-                                    {% if recep.data_nascimento %}
-                                        <i class="far fa-calendar-alt me-1"></i> {{ recep.data_nascimento|date:"d/m/Y" }}
-                                    {% else %}
-                                        Nascimento não inf.
-                                    {% endif %}
-                                </div>
-                                <div class="text-muted small text-truncate" style="max-width: 200px;">
-                                    {{ recep.endereco|default:"Endereço não cadastrado" }}
-                                </div>
-                            </td>
-                            <td class="text-end pe-4">
-                                <a href="{% url 'edit_recepcionista' recep.admin.id %}" class="btn btn-sm btn-outline-warning px-3 me-1">
+                            </div>
+                        </td>
+                        <td>
+                            <div class="text-dark fw-medium" style="font-size: 0.85rem;">
+                                {{ recep.admin.email }}
+                            </div>
+                            <div class="text-muted small">
+                                {{ recep.telefone|default:"Sem telefone" }}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="text-dark small fw-medium">
+                                {% if recep.data_nascimento %}
+                                    <i class="far fa-calendar-alt me-1 text-muted"></i> {{ recep.data_nascimento|date:"d/m/Y" }}
+                                {% else %}
+                                    <span class="text-muted opacity-50 italic">Nascimento não inf.</span>
+                                {% endif %}
+                            </div>
+                            <div class="text-muted small text-truncate-custom" title="{{ recep.endereco }}">
+                                {{ recep.endereco|default:"Endereço não cadastrado" }}
+                            </div>
+                        </td>
+                        <td class="text-end">
+                            <div class="d-flex justify-content-end gap-2">
+                                <a href="{% url 'edit_recepcionista' recep.admin.id %}" class="btn btn-action-edit">
                                     Editar
                                 </a>
-                                
-                                <a href="{% url 'delete_recepcionista' recep.admin.id %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Tem certeza que deseja remover o acesso desta recepcionista?')">
+                                <a href="{% url 'delete_recepcionista' recep.admin.id %}" 
+                                   class="btn btn-action-delete" 
+                                   onclick="return confirm('Deseja realmente remover o acesso desta profissional?')">
                                     Excluir
                                 </a>
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="4" class="text-center py-5 text-muted">Nenhuma recepcionista cadastrada no sistema.</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center py-5">
+                            <img src="{% static 'recepcionista.png' %}" style="width: 48px; opacity: 0.15; margin-bottom: 15px;">
+                            <p class="text-muted mb-0">Nenhuma profissional de recepção cadastrada.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
 </div>

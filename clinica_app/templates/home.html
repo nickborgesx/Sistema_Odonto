@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block main_content %}
-<div class="main-wrapper d-flex align-items-center justify-content-center">
+<div class="login-bg d-flex align-items-center justify-content-center">
     <div class="login-card d-flex overflow-hidden shadow-2xl">
         
         <div class="brand-side d-none d-lg-flex flex-column justify-content-center align-items-center p-5 text-white">
@@ -49,7 +49,7 @@
                 </form>
 
                 <div class="footer-info text-center mt-4">
-                    <span class="text-muted small fw-bold">© 2026 OdontoGestão</span>
+                    <span class="text-muted small fw-bold">Created by Nicolas Borges</span>
                 </div>
             </div>
         </div>
@@ -57,39 +57,29 @@
 </div>
 
 <style>
-    :root {
-        /* Fundo alinhado ao azul principal do layout (base.html) */
-        --bg-gradient-start: #eef6ff;
-        --bg-gradient-end: #dbeafe;
-    }
-
-    /* Fundo com profundidade, sem brigar com o restante do app */
-    body { 
-        background:
-          radial-gradient(900px 600px at 15% 15%, rgba(0, 123, 255, 0.12) 0%, rgba(0, 123, 255, 0) 60%),
-          radial-gradient(900px 600px at 85% 80%, rgba(0, 86, 179, 0.10) 0%, rgba(0, 86, 179, 0) 55%),
-          linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
-        font-family: 'Inter', sans-serif; 
+    .login-bg {
         min-height: 100vh;
-        margin: 0;
+        padding: 24px;
+        background:
+          radial-gradient(900px 600px at 15% 15%, rgba(37, 99, 235, 0.16) 0%, rgba(37, 99, 235, 0) 60%),
+          radial-gradient(900px 600px at 85% 80%, rgba(29, 78, 216, 0.12) 0%, rgba(29, 78, 216, 0) 55%),
+          linear-gradient(135deg, #eef2ff 0%, #eff6ff 100%);
+        border-radius: 16px;
     }
-
-    .main-wrapper { height: 100vh; width: 100vw; }
 
     .login-card {
         width: 1000px;
         min-height: 600px;
         border-radius: 24px;
-        background: rgba(255, 255, 255, 0.92);
-        border: 1px solid rgba(255, 255, 255, 0.7);
-        box-shadow: 0 35px 70px -30px rgba(0, 0, 0, 0.25);
-        backdrop-filter: blur(10px);
+        background: rgba(255, 255, 255, 0.96);
+        border: 1px solid rgba(17, 24, 39, 0.08);
+        box-shadow: 0 30px 70px -30px rgba(16, 24, 40, 0.30);
         animation: pop-in 340ms ease-out both;
     }
 
     .brand-side {
         width: 40%;
-        background: linear-gradient(135deg, var(--brand-blue) 0%, var(--brand-blue-dark) 100%);
+        background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
         position: relative;
     }
 
@@ -138,25 +128,25 @@
     }
 
     .form-control-custom:focus {
-        border-color: var(--brand-blue);
-        box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.1);
+        border-color: var(--accent);
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.14);
         outline: none;
     }
 
     .btn-primary-custom {
-        background: linear-gradient(135deg, var(--brand-blue) 0%, var(--brand-blue-dark) 100%);
-        color: white;
-        border: none;
+        background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
+        color: #ffffff;
+        border: 2px solid rgba(29, 78, 216, 0.55);
         border-radius: 10px;
         font-weight: 600;
         transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
-        box-shadow: 0 14px 30px -18px rgba(0, 86, 179, 0.75);
+        box-shadow: 0 14px 30px -18px rgba(29, 78, 216, 0.75);
     }
 
     .btn-primary-custom:hover {
         filter: brightness(1.02);
         transform: translateY(-1px);
-        box-shadow: 0 18px 38px -20px rgba(0, 86, 179, 0.85);
+        box-shadow: 0 18px 38px -20px rgba(29, 78, 216, 0.85);
     }
 
     .btn-primary-custom:active {
