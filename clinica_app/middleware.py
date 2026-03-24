@@ -15,9 +15,8 @@ class LoginRequiredMiddleware:
             '/admin/',  # libera admin (inclui /admin/login/)
         )
 
-        # Verifica se o usuário não está logado E se a URL atual não começa com os caminhos liberados
+
         if not request.user.is_authenticated:
-            # Evita o bug de `startswith('/')` liberar tudo: paths exatos vs. prefixos.
             if request.path not in exempt_exact_paths and not request.path.startswith(exempt_prefixes):
                 return redirect('home')
 

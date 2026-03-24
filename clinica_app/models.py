@@ -13,11 +13,13 @@ class CustomUser(AbstractUser):
     # Garante que o email seja obrigatório e único
     email = models.EmailField(unique=True) 
     user_type = models.CharField(default='1', choices=USER_TYPE_CHOICES, max_length=1)
+    # Reaproveitamos `first_name` como "Nome completo" no sistema.
+    first_name = models.CharField("Nome completo", max_length=150, blank=True)
 
     # Mantemos o fluxo padrão do Django (USERNAME_FIELD = "username").
     # O login do projeto já usa o e-mail no campo `username` (views.py),
     # o que evita quebrar `createsuperuser` sem um manager customizado.
-    REQUIRED_FIELDS = ['email', 'first_name', 'last_name']
+    REQUIRED_FIELDS = ['email', 'first_name']
 
     def __str__(self):
         return self.email
